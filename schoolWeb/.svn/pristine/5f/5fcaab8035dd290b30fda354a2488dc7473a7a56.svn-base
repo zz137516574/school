@@ -1,0 +1,243 @@
+<template>
+  <div class="top">
+    <div class="top-ceiling">
+      <div class="top-ceiling-left">
+        <span>您好，欢迎来到云联课堂</span>
+        <span style="padding-left: 10px;cursor: default" @click="returnIndex" v-if="this.$route.meta.title !='商学院'"> << 返回首页</span>
+      </div>
+      <div class="top-ceiling-right clearfix">
+        <div class="f-fl">
+          <span  style="cursor: pointer" v-if="this.msg != '登陆成功！'|| this.msg === undefined || this.msg ===''" @click="login">亲，请登录</span>
+          <Dropdown class="p-r-10" v-if="this.msg === '登陆成功！'">
+          <a href="javascript:void(0)">
+            我的课堂
+            <Icon type="arrow-down-b"></Icon>
+          </a>
+          <DropdownMenu slot="list" class="text-center">
+            <DropdownItem v-for="(item,index) in topMenu" :key="index">
+              <router-link
+                :to="{path:item.path,query: {name: item.text}}"
+                replace
+                class="about-tab"
+                target="_blank"
+              >
+                {{item.text}}
+              </router-link>
+            </DropdownItem>
+            <DropdownItem >
+              <span @click="callBackIndex">退出</span>
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+        </div>
+        <div class="f-fl m-l-15" v-if="this.msg === '登陆成功！'">
+          <span style="cursor: default"  @click="bindAccount" v-if="memberAppear === 0">云联惠账号未绑定，请绑定</span>
+          <span style="cursor: default" v-if="memberAppear === 1">云联惠账号：<span>{{memberId}}</span></span>
+        </div>
+      </div>
+    </div>
+    <div id="mask">
+      <Modal
+        v-model="iframeState"
+        :styles="{width: '100%',height:'100%',top:'0px',left:'0px'}">
+        <iframe :src="this.iframes" style="width: 100%; height:100%; border: 0;"></iframe>
+        <div slot="footer">
+          <Button type="primary" size="large" long  @click="ReturnLogon" style="background: #dab866;border-color: #dab866;">&lt;&lt; 快速返回</Button>
+        </div>
+      </Modal>
+    </div>
+  </div>
+</template>
+
+<script>
+  let faker = require("faker");
+  export default {
+    data() {
+      return {
+        userId:'',
+        userInfo:'',
+        msg:'',
+        topMenu:[
+          {text: '个人主页' , to:'personalLecturer',path:'/3-1'},
+          {text: '账户中心' , to:'personalLecturer',path:'/4-2'},
+          {text: '讲师专区' , to:'personalLecturer',path:'/5-1' },
+          {text: '互动直播' , to:'personalLecturer',path:'/6-1' },
+          {text: '学习中心' , to:'personalLecturer',path:'/7-1' },
+//          {text: '系统绑定' , to:'systemBinding',path:'systemBinding'  },
+        ],
+        topAppear:false,
+        iframeState:false,
+        states:'',
+        iframes:'',
+        appear:'',
+        tokens: '',
+        ylmsg:'',
+        lecColData:'',
+        memberId:'',
+        memberAppear:'',
+        memberInfo:'',
+        disLine:''
+      };
+    },
+    created(){
+//      if(window.localStorage.memberInfo){
+//        this.memberInfo = JSON.parse(window.localStorage.memberInfo);
+//        this.memberId = JSON.parse(window.localStorage.memberInfo).memberId;
+//      }
+//      if(this.memberId){
+//        this.memberAppear = 1;
+//      }else{
+//        this.memberAppear = 0;
+//      }
+    },
+    mounted() {
+      if(window.localStorage.msg)
+      {
+        this.msg = JSON.parse(window.localStorage.msg);
+      }
+      if(window.localStorage.userInfo)
+      {
+        this.userInfo = JSON.parse(window.localStorage.userInfo);
+        this.userId = JSON.parse(window.localStorage.userInfo).userId;
+        this.newMember();
+        if(this.userInfo.usertype === 0){
+          this.topMenu = this.topMenu.filter(this.checkAdult);
+        }
+//        if(this.userInfo.usertype === 1){
+//          this.topMenu = this.topMenu.filter(this.checkUser);
+//        }
+      }
+    },
+    beforeDestroy() {
+
+    },
+    methods: {
+      returnIndex(){
+        this.$router.replace('index');
+      },
+      login(){
+        this.$router.push({path: 'login'});
+      },
+      // 判断用户类型回调函数
+      checkAdult(itemData) {
+        return itemData.text !=='讲师专区';
+      },
+//      checkUser(itemData) {
+//        return itemData.text !=='互动直播';
+//      },
+      // 退出
+      callBackIndex(){
+        window.localStorage.removeItem('userInfo');
+        window.localStorage.removeItem('msg');
+        window.localStorage.removeItem('token');
+        window.localStorage.removeItem('memberInfo');
+        this.$router.replace('login');
+      },
+
+      newMember(){
+        this.service.lecInfo(this.userId).then(result => {
+          if(result.code === 0){
+            this.memberId = result.user.memberId;
+            if(result.user.memberId){
+              this.memberAppear = 1;
+              if(!window.localStorage.memberInfo){
+                window.localStorage.memberInfo = JSON.stringify(result.user);
+              }
+            }else{
+              this.memberAppear = 0;
+            }
+          }
+        }).catch(error => {
+          this.$Message.error({
+            content: error,
+            duration: 5
+          });
+        })
+      },
+      bindAccount(){
+        this.iframeUrl();
+//        if( window.localStorage.ylmsg !== undefined && window.localStorage.ylmsg === '登陆成功！'){
+//          let mesggg = JSON.parse(window.localStorage).ylmsg;
+//          this.$Message.success({
+//            content: mesggg,
+//            duration: 30,
+//            closable: true
+//          });
+//          this.service.lecInfo(this.userId).then(result => {
+//            this.lecColData = result.user;
+//          }).catch(error => {
+//            this.$Message.error({
+//              content: error,
+//              duration: 5
+//            });
+//          })
+//        }else{
+//          this.$Message.error({
+//            content: '授权失败，请重试！',
+//            duration: 30,
+//            closable: true
+//          });
+//        }
+      },
+      /* 退出授权 */
+      ReturnLogon() {
+        this.iframeState = false;
+        location.reload();
+      },
+      iframeUrl() {
+        this.iframeState = true;
+        this.iframes = 'https://openapidev.yunlianhui.com/oauth/authorize?client_id=627aaea7&redirect_uri=http://sxy.goboosoft.com/callback&state='+ this.userId +'&response_type=code&scope=basic_info';
+//        this.iframes = 'https://opentest.yunlianhui.cn/token/authorize?client_id=SXYY&redirect_uri=http://sxy.goboosoft.com/callback&state='+ this.userId +'&response_type=code&scope=basic_info';
+      },
+    }
+  };
+</script>
+
+<style lang="less">
+  .top{
+    background: #f1f1f1;
+    position: relative;
+    color: #000;
+    .top-ceiling{
+      width: 1200px;
+      margin: 0 auto;
+      background: #f1f1f1;
+      padding: 8px 0;
+      overflow: hidden;
+      .top-ceiling-left{
+        float: left;
+        margin-left: 15px;
+        a {
+          color: #666666;
+          padding: 0 0 0 10px;
+        }
+      }
+      .top-ceiling-right{
+        float: right;
+        margin-right: 15px;
+        a {
+          color: #666666;
+        }
+      }
+      .ivu-dropdown .ivu-select-dropdown{
+        z-index: 999;
+      }
+    }
+  }
+  /*.ivu-modal-content {*/
+    /*height: 100vh !important;*/
+  /*}*/
+  /*.ivu-modal-body {*/
+    /*height: 100vh !important;*/
+  /*}*/
+  .ivu-modal-footer{
+    position: absolute;
+    top: 60px;
+    right: 75px;
+    z-index: 100;
+    border: none;
+  }
+.ivu-modal-content,.ivu-modal-body{
+    height: 100vh !important;;
+  }
+</style>

@@ -1,0 +1,253 @@
+<template>
+    <div id="course">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="course" class="m-b-20"></v-subpageMenu>
+
+        <!--面包屑-->
+        <!--<Breadcrumb separator=">" class="container m-b-20 p-l-15">-->
+            <!--<BreadcrumbItem href="/">首页</BreadcrumbItem>-->
+            <!--<BreadcrumbItem href="/views/course">所有课程</BreadcrumbItem>-->
+        <!--</Breadcrumb>-->
+        <breadcrumb></breadcrumb>
+
+        <!--分类-->
+        <v-classification :listData="courseListItem" v-on:courseTypeRefer="courseTypes"></v-classification>
+        <!--课程分类-->
+        <div class="container searchVolume clearfix m-t-10" style="background: #f5f5f5; width: 100%;">
+          <span class="f-fl" style="padding:0px 20px; background: #f5f5f5; height: 45px; line-height: 45px;">课程分类</span>
+          <div class="f-fl">
+            <RadioGroup v-model="courseTypeData">
+              <span  v-for="(item, index) in courseTypDataList" :key="index" @click="CourseTypeChange(item)">
+                <Radio  :label="item"  :value="item">
+                </Radio>
+              </span>
+            </RadioGroup>
+          </div>
+        </div>
+        <!--搜索热度-->
+        <div class="container searchVolume clearfix m-t-10" style="background: #f5f5f5; width: 100%;">
+            <Menu mode="horizontal" active-name="1"  class="f-fl" style="background: #f5f5f5; height: 45px; line-height: 45px;">
+                <MenuItem name="1" v-for="(item,index) in courseTypeList" :key="index">
+                  <span @click="timeCourse(index,item)" style="width:100%;color: black" :class="{themeColor:position===index}">{{item}}</span>
+                </MenuItem>
+            </Menu>
+            <div class="f-fr m-r-10">
+                <RadioGroup v-model="freecourse">
+                  <span  v-for="(item, index) in freeCourseList" :key="index" @click="freeCourseChange(item)">
+                    <Radio class="f-fr" :label="item"  :value="item">
+                    </Radio>
+                  </span>
+                </RadioGroup>
+                <!--<RadioGroup v-model="abroadcourse">-->
+                  <!--<span @click="abroadCourseChange">-->
+                    <!--<Radio class="f-fr"  label="直播课程">-->
+                    <!--</Radio>-->
+                  <!--</span>-->
+                <!--</RadioGroup>-->
+            </div>
+        </div>
+
+        <!--课程列表-->
+        <div class="clearfix container classItem m-t-30">
+          <v-coursedivItem :courseData="coursedivItem" :courseStatusData="courseItemStatus" v-on:courseDetailsRefre="courseDetails" v-on:coursePageRefer="courseAreas"></v-coursedivItem>
+        </div>
+        <!--分页-->
+      <Page :total="pageNumber * 10" class="container text-center" style="padding: 50px 0 100px;" @on-change="newsPageChange"></Page>
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import classification from '../components/class/classification.vue';
+    import coursedivItem from '../components/course/coursedivItem.vue';
+    import footer from '../components/footer.vue';
+    export default {
+        data() {
+            return {
+                freecourse: '',
+                abroadcourse:'',
+                courseTypeList:['最新','最热','推荐'],
+                freeCourseList:['免费课程','收费课程'],
+                courseTypDataList:['普通课','系列课'],
+                courseTypeData:'普通课',
+                isFree:'',
+                top: {},
+                search: {},
+                subpageMenu:{},
+                classification: {},
+                page: 1,
+                limit: 16,
+                hot: '',
+                isHot: '',
+                onorsome: 0,
+                pageNumber: 1,
+                position: 0,
+                courseType: 0,
+                courseListData:'',
+                coursedivItem:[],
+                courseListItem:'',
+                newAreaData:{
+                  className: '全部'
+                },
+                classId: '',
+                seriesCourseId: '',
+                example1:'',
+                footer: {},
+                courseItemStatus:[],
+                courseItemId:'',
+        };
+        },
+//        watch:{
+//          'courseItemStatus':function (newValue,oldValue) {
+//            console.log(newValue);
+//            console.log(oldValue);
+//          },
+//        },
+        mounted() {
+          if(this.$route.query.onorsome === 0){
+            this.courseTypeData = '普通课';
+            this.onorsome = 0;
+          }else if(this.$route.query.onorsome === 1){
+            this.courseTypeData = '系列课';
+            this.onorsome = 1;
+          }else{
+            this.courseTypeData = '普通课';
+            this.onorsome = 0;
+          }
+          this.coursenavLists();
+          this.courseAreas(this.courseListData);
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+             'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-classification': classification,
+            'v-coursedivItem': coursedivItem,
+            'v-footer': footer
+        },
+        methods: {
+//          分页
+          newsPageChange(pageNum){
+            this.page = pageNum;
+            this.courseAreas();
+          },
+//         分类
+          courseTypes(newsData){
+            this.page = 1;
+            if(newsData !== null){
+              this.classId = newsData;
+            }else{
+              this.classId = '';
+            }
+            this.courseAreas();
+          },
+//          课程分类导航
+          coursenavLists(){
+            this.service.coursenavList().then(result => {
+              this.courseListItem = result.list;
+              this.courseListItem.unshift(this.newAreaData);
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          CourseTypeChange(item){
+            this.courseTypeData = item;
+            this.page = 1;
+            if(item === '普通课'){
+              this.onorsome = 0;
+              this.courseAreas();
+            }
+            if(item === '系列课'){
+              this.onorsome = 1;
+              this.courseAreas();
+            }
+          },
+          freeCourseChange(item){
+              this.page = 1;
+              this.freecourse = item;
+              if(this.freecourse === '收费课程'){
+                this.isFree = 1;
+                this.courseAreas();
+              }
+              if(this.freecourse === '免费课程'){
+                this.isFree = 0;
+                this.courseAreas();
+              }
+          },
+//          课程列表
+          timeCourse(index,item){
+            this.page = 1;
+            this.position = index;
+            switch (this.position){
+              case 0:
+                this.hot = '';
+                this.isHot = '';
+                this.courseAreas();
+                break;
+              case 1:
+                this.hot = 1;
+                this.isHot ='';
+                this.courseAreas();
+                break;
+              case 2:
+                this.hot = '';
+                this.isHot = 1;
+                this.courseAreas();
+                break;
+            }
+          },
+          //          进入详情页面
+          courseDetails(newItem){
+            if(newItem.onorsome === 0 || newItem.onorsome === null ){  //普通课程
+              this.onorsome = 0;
+              this.$router.push({ path: 'freeCourse', query: { onorsome:this.onorsome , courseId:newItem.courseId, price:newItem.price}});
+            }
+            if(newItem.onorsome === 1){ //系列课程
+              this.onorsome = 1;
+              this.$router.push({ path: 'freeSeriesCourse', query: { onorsome:this.onorsome, seriesCourseId:newItem.seriesCourseId, price:newItem.price}});
+            }
+          },
+          // 课程专区(type为1时传递的是页码page ， type为-1的时候传递的是分类Id classId)
+          courseAreas(){
+            var _this = this;
+//            console.log(this.page+'====='+this.limit+"====="+this.classId+"====="+this.isHot+"====="+this.hot+"====="+this.isFree+"====="+this.onorsome+"====="+this.courseType);
+            _this.service.courseArea(this.page, this.limit, this.classId, this.isHot, this.hot, this.isFree, this.onorsome, this.courseType).then(result => {
+              _this.coursedivItem = result.page.list;
+              _this.pageNumber = result.page.totalPage;
+              _this.coursedivItem.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.courseItemStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              _this.$Loading.error();
+            });
+//            this.$nextTick(function(){
+//             console.log('6666666');
+//            })
+          },
+        },
+    };
+
+</script>
+
+<style lang="less">
+
+</style>

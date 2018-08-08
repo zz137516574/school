@@ -1,0 +1,258 @@
+<!-- 个人登录 -->
+<template>
+    <div class="person-class">
+        <div class="person-content">
+            <div class="person-one">
+                <i v-if="this.msg === '登陆成功！' || this.userInfo != undefined"><img :src="head"></i>
+                <span v-if="this.msg != '登陆成功！'|| this.msg === undefined || this.msg === ''">你好!<br/>请登录</span>
+                <span v-if="this.msg === '登陆成功！' || this.userInfo != undefined">{{username}}</span>
+            </div>
+            <div class="person-two">
+              <div v-if="this.msg != '登陆成功！'|| this.msg === undefined || this.msg === ''">
+                <button class="person-btone" @click="goLogin">登录</button>
+                <button class="person-bttwo" @click="goRegister">注册</button>
+              </div>
+              <div class="person-three" v-if="this.msg === '登陆成功！'">
+                <p><a href="/6-4">我的课程</a></p>
+                <p><a href="/7-3">我的收藏</a></p>
+                <p class="three-p"><a href="/7-4">我的笔记</a></p>
+              </div>
+            </div>
+        </div>
+        <div class="person-bottom">
+            <div class="personHeads">
+              <span style="display: inline-block;vertical-align: middle"><img src="../../assets/image/send.png"></span>
+              <span style="display: inline-block;vertical-align: middle">云联大学的最新动态</span>
+            </div>
+            <div>
+              <marquee style="width: 100%;" direction="up" scrollamount='2' scrolldelay='10' onMouseOut="this.start()" onMouseOver="this.stop()" >
+                <dl v-for="(item,index) in newIndexDetail" :key="index" @click="newsIndexDetails(item.newsId)">
+                  <dd class="clearfix"><i class="redBlock"></i><span>{{item.newsTitle}}</span></dd>
+                </dl>
+              </marquee>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+      data() {
+        return {
+          msg:'',
+          userId:'',
+          userInfo:'',
+          page: 1,
+          limit: 8,
+          newIndexDetail:'',
+          newsId: '',
+          head:'',
+          username:''
+        };
+      },
+      mounted() {
+        if(window.localStorage.msg)
+        {
+          this.msg = JSON.parse(window.localStorage.msg);
+        }
+        if(window.localStorage.userInfo)
+        {
+          this.userInfo = JSON.parse(window.localStorage.userInfo);
+          this.userId = JSON.parse(window.localStorage.userInfo).userId;
+          this.newMember();
+        }
+        this.newsIndexGroup();
+      },
+      beforeDestroy() {
+
+      },
+      components: {
+      },
+      methods: {
+        goLogin(){
+          this.$router.push({path: 'login',query: {name: 'login'}});
+        },
+        goRegister(){
+          this.$router.push({path: 'login',query: {name: 'register'}});
+        },
+        // 最新动态请求数据
+        newsIndexGroup() {
+          this.classId='';
+          this.newsAttribute='';
+          this.newsVisitNum='';
+          this.service.newsLeftGroup(this.page, this.limit, this.classId, this.newsAttribute, this.newsVisitNum).then(result => {
+            this.newIndexDetail = result.page.list;
+          }).catch(error => {
+            this.$Message.error({
+              content: error,
+              duration: 5
+            });
+          })
+        },
+        newMember(){
+          this.service.lecInfo(this.userId).then(result => {
+            this.head  = result.user.head;
+            this.username = result.user.username;
+          }).catch(error => {
+            this.$Message.error({
+              content: error,
+              duration: 5
+            });
+          })
+        },
+        // 进入详情页
+        newsIndexDetails(newItem) {
+          this.$router.push({ path: 'newsInfo', query: { newsId: newItem}});
+        },
+      }
+    };
+</script>
+
+<style lang="less">
+    .person-class {
+        width: 235px;
+        height: 350px;
+        background-color: #f5f5f5;
+        float: right;
+        .person-content {
+            width: 235px;
+            height: 190px;
+            border: 1px #ededed solid;
+            font-size: 12px;
+            color: #5a5a5a;
+            float: left;
+            .person-one {
+                width: 100% !important;
+                height: 100px;
+                i{
+                    img{
+                        width: 66px !important;
+                        height: 66px !important;
+                        float: left;
+                        margin-top: 20px;
+                        margin-left: 30px;
+                        cursor: pointer;
+                        background-image: url('../../assets/image/imgbg.jpg');
+                        background-repeat: no-repeat;
+                        background-size: 100% 100%;
+                    }
+                }
+                span{
+                    float: left;
+                    margin-top: 35px;
+                    margin-left: 15px;
+                    font-size: 14px;
+                }
+            }
+            .person-two {
+                width: 100% !important;
+                height: 46px !important;
+                padding-top:10px;
+                .person-btone{
+                    width: 80px;
+                    height: 30px;
+                    background-color: #ff8a0c;
+                    color: #fff;
+                    float: left;
+                    border: 0;
+                    border-radius: 2px;
+                    margin-left: 30px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+                .person-btone:hover{
+                    background-color: #e86300;
+                }
+                .person-bttwo{
+                    width: 80px;
+                    height: 30px;
+                    background-color: #ff8a0c;
+                    color: #fff;
+                    float: right;
+                    border: 0;
+                    border-radius: 2px;
+                    margin-right: 30px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+                .person-bttwo:hover{
+                     background-color: #e86300;
+                 }
+            }
+            .person-three{
+                width: 100% !important;
+                p{
+                    width: 77px !important;
+                    height: 35px !important;
+                    line-height: 35px !important;
+                    float: left;
+                    border-right: 1px #dddddd solid;
+                    text-align: center;
+                    cursor: pointer;
+                    margin-top: 8px;
+                    a{
+                        color: #ff8a0c;
+                        font-size: 14px;
+                    }
+                }
+                .three-p{
+                    border-right: 0;
+                }
+            }
+        }
+        .person-bottom {
+            width: 235px !important;
+            height: 160px !important;
+            background-color: #ffffff;
+            float: left;
+            font-size: 12px;
+            border: 1px solid #efefef;
+            overflow: hidden;
+            .personHeads {
+                width: 100% !important;
+                height: 40px;
+                padding: 12px 0;
+                color: #000;
+                img{
+                    float: left;
+                    margin-left:10px;
+                }
+                span{
+                    float: left;
+                    padding-left: 5px;
+                }
+            }
+            dl{
+                width: 100% !important;
+                height: 30px;
+                float: left;
+                padding-left: 10px;
+                box-sizing: border-box;
+                dd{
+                  float: left;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  width: 220px;
+                  white-space: nowrap;
+                  .redBlock{
+                      width: 5px;
+                      height: 5px;
+                      background: #ff8a0c;
+                      float: left;
+                      margin-top: 7px;
+                  }
+                  span{
+                      float: left;
+                      padding-left: 5px;
+                      cursor: pointer;
+                      height: 21px;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      width: 185px;
+                      white-space: nowrap;
+                  }
+                }
+            }
+        }
+    }
+</style>

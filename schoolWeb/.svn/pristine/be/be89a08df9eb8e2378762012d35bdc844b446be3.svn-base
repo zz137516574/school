@@ -1,0 +1,141 @@
+<template>
+    <div id="course">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="course" class="m-b-20"></v-subpageMenu>
+
+        <!--面包屑-->
+        <Breadcrumb separator=">" class="container m-b-20 p-l-15">
+            <BreadcrumbItem href="/5-5">课程专区</BreadcrumbItem>
+            <BreadcrumbItem href="#">共享课程</BreadcrumbItem>
+        </Breadcrumb>
+
+        <!--分类-->
+        <v-classification :listData="courseListItem" v-on:courseTypeRefer="courseTypes"></v-classification>
+
+        <!--课程列表-->
+        <div class="clearfix container classItem m-t-30">
+          <v-coursedivItem :courseData="coursedivItem" :courseStatusData="courseItemStatus" v-on:courseDetailsRefre="courseDetails" v-on:coursePageRefer="shareCourseAreas"></v-coursedivItem>
+        </div>
+        <!--分页-->
+        <Page :total="pageNumber * 10" class="container text-center" style="padding: 50px 0 100px;" @on-change="newsPageChange"></Page>
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import classification from '../components/class/classification.vue';
+    import coursedivItem from '../components/course/courseShareItem.vue';
+//    import coursedivItem from '../components/course/coursedivItem.vue';
+    import footer from '../components/footer.vue';
+
+    export default {
+        data() {
+            return {
+                freecourse: '',
+                abroadcourse:'',
+                top: {},
+                search: {},
+                subpageMenu:{},
+                classification: {},
+                page: 1,
+                limit: 12,
+                isShare: 1,
+                classId: '',
+                onorsome: 0,
+                pageNumber: 1,
+                courseType: '',
+                courseListData:'',
+                coursedivItem:'',
+                courseListItem:'',
+                newAreaData:{
+                  className: '全部'
+                },
+                seriesCourseId: '',
+                headteacher:'',
+                example1:'',
+                footer: {},
+                shareCourseListData:'',
+                courseItemStatus:''
+            };
+        },
+        mounted() {
+          this.seriesCourseId = this.$route.query.seriesCourseId;
+          this.headteacher = this.$route.query.headteacher;
+          this.coursenavLists();
+          this.shareCourseAreas(this.shareCourseListData);
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'v-subpageMenu': subpageMenu,
+            'v-classification': classification,
+            'v-coursedivItem': coursedivItem,
+            'v-footer': footer
+        },
+        methods: {
+          //  分页
+          newsPageChange(pageNum){
+            this.page = pageNum;
+            this.shareCourseAreas();
+          },
+          //  分类
+          courseTypes(newsData){
+            if(newsData !== null){
+              this.classId = newsData;
+            }else{
+              this.classId = '';
+            }
+            this.shareCourseAreas();
+          },
+          //  课程分类导航
+          coursenavLists(){
+            this.service.coursenavList().then(result => {
+              this.courseListItem = result.list;
+              this.courseListItem.unshift(this.newAreaData);
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          // 课程专区(type为1时传递的是页码page ， type为-1的时候传递的是分类Id classId)
+          shareCourseAreas(){
+            var _this = this;
+            this.service.addSharedData(this.page, this.limit, this.isShare, this.classId).then(result => {
+              console.log(result);
+              this.coursedivItem = result.page.list;
+              this.coursedivItem.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.courseItemStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //  进入详情页面
+          courseDetails(newItem){
+            console.log(this.seriesCourseId);
+            this.$router.push({ path: 'freeShareCourse', query: { onorsome:this.onorsome,seriesCourseId:this.seriesCourseId, courseId:newItem.courseId, price:newItem.price}});
+          },
+        }
+    };
+
+</script>
+
+<style lang="less">
+
+</style>

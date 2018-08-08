@@ -1,0 +1,389 @@
+<template>
+    <div id="Roadshow">
+        <!--关于我们内容切换-->
+        <div class="container m-t-40 clearfix">
+            <v-aboutSchool :aboutSchool="aboutSchool"></v-aboutSchool>
+        </div>
+        <div class="container rouder m-b-120 clearfix" style="width:1200px;">
+            <swiper :options="swiperOptionTop" class="gallery-top" ref="swiperTop">
+                <swiper-slide v-for="(item,index) in schoolData" :key="index">
+                    <div class="showCon clearfix">
+                        <div class="showLeft f-fl">
+                            <img :src="item.photo" alt="">
+                        </div>
+                        <div class="showRight f-fr">
+                            <div class="sRTitle">
+                              {{item.schoolName}}
+                            </div>
+                            <div class="sRcontent m-t-20" v-html="exchange(item.profiles)">
+                            </div>
+                            <div class="sRbot clearfix">
+                                <div style="float: right">
+                                    <span class="sCome"><span>进入商学院</span><span>>>></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </swiper-slide>
+            </swiper>
+            <!-- swiper2 Thumbs -->
+            <swiper :options="swiperOptionThumbs" class="gallery-thumbs" ref="swiperThumbs">
+                <swiper-slide v-for="(item,index) in schoolData" :key="index">
+                    <div class="sCell">
+                        <div class="sCellimg">
+                            <img :src="item.photo" alt="">
+                        </div>
+                        <div class="sCelltext">
+                            <p class="sCelltitle">{{item.schoolName}}</p>
+                            <p class="sCelltext1">
+                                <span><img src="../assets/image/renqi.jpg" alt=""></span>
+                                <span><span>{{item.attenedCount}}</span>万+</span>
+                                <span><img src="../assets/image/rentou.jpg" alt=""></span>
+                                <span><span>{{item.studentCount}}</span>万+</span>
+                            </p>
+                        </div>
+                    </div>
+                </swiper-slide>
+                <div class="swiper-button-next swiper-button-white" slot="button-next" style="border:2px solid #ff8a0c"></div>
+                <div class="swiper-button-prev swiper-button-white" slot="button-prev" style="border:2px solid #ff8a0c"></div>
+            </swiper>
+        </div>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import listDiv from '../components/interview/listDiv.vue';
+    import footer from '../components/footer.vue';
+    import aboutSchool from '../components/about/aboutSchool.vue';
+
+    import VueAwesomeSwiper from 'vue-awesome-swiper';
+    import { swiper, swiperSlide } from 'vue-awesome-swiper';
+
+    Vue.use(VueAwesomeSwiper);
+
+
+    export default {
+        data() {
+            return {
+                schoolData:'',
+                isFrozen:0,
+                auditStatus:19,
+                schoolLength:0,
+                page:1,
+                limit:10,
+                top: {},
+                search: {},
+                subpageMenu:{},
+                footer: {},
+                items:[
+                    { text: '关于我们' },
+                    { text: '关于讲师'},
+                    { text: '关于学校' }
+                ],
+                flag:0,
+                aboutSchool:{},
+                swiperOptionTop: {
+                    notNextTick: true,
+                    spaceBetween: 0,
+//                    loop:true,
+//                    loopedSlides:this.schoolLength,
+                    loop:true,
+                    loopedSlides:this.schoolLength,
+//                    prevButton: '.swiper-button-prev',
+//                    nextButton: '.swiper-button-next'
+                },
+                swiperOptionThumbs: {
+                    notNextTick: true,
+                    prevButton: '.swiper-button-prev',
+                    nextButton: '.swiper-button-next',
+                    spaceBetween: 9,
+                    centeredSlides: true,
+//                    loop:true,
+//                    loopedSlides:this.schoolLength,
+                    slidesPerView: 'auto',
+                    touchRatio: 0.2,
+                    slideToClickedSlide:true
+                }
+            };
+        },
+        mounted() {
+            const swiperTop = this.$refs.swiperTop.swiper
+            const swiperThumbs = this.$refs.swiperThumbs.swiper
+            swiperTop.params.control = swiperThumbs
+            swiperThumbs.params.control = swiperTop
+
+            this.schools();
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'v-subpageMenu': subpageMenu,
+            'v-footer': footer,
+            'v-aboutSchool': aboutSchool,
+            swiper,
+            swiperSlide,
+
+        },
+        computed: {
+            swiper() {
+                return this.$refs.mySwiper.swiper;
+            }
+        },
+        methods: {
+          schools(){
+            this.service.aboutSchool(this.isFrozen,this.auditStatus,this.page,this.limit).then(result => {
+              this.schoolData = result.page.list;
+              this.schoolLength = result.page.list.length;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          exchange (str) {
+            let bbq = str;
+
+            if(bbq!=undefined){
+              bbq = bbq.replace(/&lt;/g, '<');
+              bbq = bbq.replace(/&gt;/g, '>');
+              bbq = bbq.replace(/&nbsp;/g,'  ');
+              bbq = bbq.replace(/&amp;/g,'&');
+              bbq = bbq.replace(/&quot;/g,'"');
+
+              bbq=bbq.replace("</*[^<>]*>", '');
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("::", ':');
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("<>", '');
+              bbq=bbq.replace("</>", '');
+              return bbq;
+            }
+          }
+        }
+    };
+
+</script>
+<style lang="less">
+    @import "../../node_modules/swiper/dist/css/swiper.min.css";
+    .bannerimg{
+        overflow: hidden;
+        height: 350px;
+        position: relative;
+        img{
+            height: 100%;
+        }
+        .banner-mask{
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.71);
+        }
+        .bannerCon{
+            position: absolute;
+            z-index: 100;
+            width: 370px;
+            height: 185px;
+            top:100px;
+            left:335px;
+            color: white;
+            .aboutCon{
+                margin-top: 10px;
+                padding-left:26px;
+                line-height: 24px;
+            }
+            .aboutusText{
+                width: 321px;
+                height: 40px;
+                line-height:40px;
+                text-align: center;
+                margin: 0px auto;
+                font-size: 35px;
+
+            }
+
+        }
+    }
+    .createCell{
+        width: 100%;
+        .createRow{
+            display: inline-block;
+            width: 80px;
+            height: 35px;
+            line-height:35px;
+            text-align: center;
+            background-color: #fcad58;
+            border-radius: 5px;
+            color:white;
+            margin-right:15px;
+        }
+    }
+    .aboutCard{
+        width: 480px;
+        margin: 0px auto;
+        border: 1px solid #ebebeb;
+        .cardLists{
+            width: 100%;
+            .timeLi{
+                width:33.3%;
+                list-style: none;
+                text-align: center;
+                height:35px;
+                line-height:35px;
+                display: inline-block !important;
+                vertical-align: middle;
+                border-right:1px solid #ebebeb;
+                font-size:15px;
+            }
+        }
+
+    }
+    .rouder{
+        width: 100%;
+    }
+    .gallery-top{
+        width:100%;
+        height: 480px;
+        .swiper-wrapper{
+            .swiper-slide{
+                .showCon{
+                    width: 100%;
+                    margin-top: 75px;
+                    height:400px;
+                    .showLeft{
+                        width: 860px;
+                        height:100%;
+                        background-image: url('../assets/image/imgbg.jpg');
+                        background-repeat: no-repeat;
+                        background-size: 100% 100%;
+                        img{
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .showRight{
+                        width: 340px;
+                        height:100%;
+                        background:#ff8a0c;
+                        color: white;
+                        text-align: center;
+                        position: relative;
+                        .sRTitle{
+                            font-size: 18px;
+                            line-height: 48px;
+                            margin-top:46px;
+                        }
+                        .sRcontent{
+                            height: 255px;
+                            padding:0px 30px;
+                            text-align: center;
+                            font-size: 12px;
+                            line-height: 24px;
+                            color: #ffffff;
+                        }
+                        .sRbot{
+                            /*margin-top:10px;*/
+                            font-size: 12px;
+                            line-height: 22px;
+                            text-align: right;
+                            .sCome{
+                                padding-right:25px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .gallery-thumbs{
+        .swiper-wrapper{
+            margin-left: -482px !important;
+            .swiper-slide {
+                width: 19.4%;
+                height: 100%;
+                border: 3px solid #dcdcdc;
+                .sCell{
+                    .sCellimg{
+                        width: 100%;
+                        height: 115px;
+                        background-image: url('../assets/image/imgbg.jpg');
+                        background-repeat: no-repeat;
+                        background-size: 100% 100%;
+                        /*border:1px solid red*/
+                        img{
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .sCelltext{
+                        width: 100%;
+                        text-align: center;
+                        color: #666666;
+                        /*line-height: 50px;*/
+                        .sCelltitle{
+                            font-size: 14px;
+                            padding:5px 0px;
+                        }
+                        .sCelltext1{
+                            font-size: 12px;
+                            /*background-image: url('../assets/image/imgbg.jpg');*/
+                            /*background-repeat: no-repeat;*/
+                            /*background-size: 100% 100%;*/
+                        }
+                    }
+                }
+            }
+            .swiper-slide-active{
+                border: 3px solid #ff8a0c !important;
+            }
+        }
+    }
+    /*访谈列表*/
+    .enrollList{
+        li{
+            margin-top: 30px;
+            float: left;
+            margin-right: 22px;
+            a{
+                transition: all .4s ease;
+            }
+        }
+        li:nth-child(4n){
+            margin-right: 0;
+        }
+    }
+    .enrollList li:hover a{
+        transform: translateY(-8px);
+        -webkit-transform: translateY(-8px);
+        -moz-transform: translateY(-8px);
+        box-shadow: 0 5px 20px 5px #e0e0e0;
+        -webkit-box-shadow: 0 5px 20px 5px #e0e0e0;
+        -moz-box-shadow: 0 5px 20px 5px #e0e0e0;
+        transition: all .4s ease;
+    }
+    /*更多按钮*/
+    .more{
+        margin-top: 60px!important;
+        margin-bottom: 55px!important;
+        text-align: center;
+        button{
+            width: 167px;
+            height: 54px;
+            line-height: 54px;
+            text-align: center;
+            background: #f8f8f8;
+            font-size: 16px;
+            color: #1e1e1e;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+    }
+</style>

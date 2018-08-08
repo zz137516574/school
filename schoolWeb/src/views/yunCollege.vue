@@ -1,0 +1,144 @@
+<template>
+    <div id="class">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="yunCollege" ></v-subpageMenu>
+
+       <!--banner-->
+        <div class="clearfix">
+            <img src="../assets/image/yunlianbanner.jpg" alt=""  style="width: 100%;min-width: 1200px;max-height: 300px;">
+        </div>
+        <div style="display: none">
+          <breadcrumb></breadcrumb>
+        </div>
+        <!--word-->
+        <div class="clearfix yunlian-word container p-t-65 m-b-20">
+            <p>国际瞬息万变，花费引领风流，花费已成为拉动我国经济增长“三驾马车”的一匹微弱“千里马”。我国经济进入新常态后，公司需求寻找新的突破口，一场市场经济、新式形式的花费革新风暴必然点着!</p>
+            <p>作为互联网+年代的积极践行者，花费立异的先驱者，广东云联惠网络科技有限公司以花费者需求为规范，以增进花费者福祉为方针，充沛激起社会花费潜能，正在敞开一个全民立异花费大年代!</p>
+            <p>来自大江南北的客户商家云粉们聚集云联惠各地商学院，接受云联惠商学院的训练学习，内容囊括云联商业大体系的构成、文化内在，运营形式，财富永动机原理，疑问解答，实操运作，署理解说等，旨在让云联商家和广阔会员深化了解云联惠，全部把握云联惠开展形式，传达云联精力理念，带动万众立异，全民创业，完成人人敢花费，个个乐花费!</p>
+        </div>
+
+        <!--title-->
+        <div class="clearfix container yun-main-title p-t-65 m-b-25">
+            分校展示
+        </div>
+
+        <!--分类-->
+        <div class="clearfix container area m-t-25 m-b-25">
+            <v-lecturerArea v-on:province="provinces"></v-lecturerArea>
+        </div>
+
+        <!--分校展示-->
+        <div class="clearfix container m-b-25">
+          <v-yunFenlei :yunList="yunLists" v-on:refre="yunCollegeInfo" v-on:yunPageRefer="yunAreas"></v-yunFenlei>
+        </div>
+        <Page :total="pageNumber*10" @on-change="yunPageChange" class="container text-center m-t-15 m-b-120"></Page>
+
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import classification from '../components/class/classification.vue';
+    import yunFenlei from '../components/yunlianCollege/yunFenlei.vue';
+    import lecturerArea from '../components/lecturer/lecturerArea.vue';
+    import footer from '../components/footer.vue';
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                classification: {},
+                yunFenlei: {},
+                page: 1,
+                limit: 8,
+                pageNumber:1,
+                parentId: '',
+                yunLists: {},
+                footer: {}
+            }
+        },
+        mounted() {
+          this.yunAreas();
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-classification': classification,
+            'v-yunFenlei': yunFenlei,
+            'v-lecturerArea': lecturerArea,
+            'v-footer': footer,
+        },
+        methods: {
+          yunCollegeInfo(itemId) {
+            this.$router.push({ path: 'yunCollegeInfo', query: { newsID: itemId }});
+          },
+          //分页
+          yunPageChange(pageNum){
+            this.page = pageNum;
+            this.yunAreas();
+          },
+          // 地区选择
+          provinces(chooseId) {
+            this.parentId = chooseId;
+            this.page = 1;
+            this.pageNumber = 1;
+            this.yunAreas();
+          },
+          //云联学院内容
+          yunAreas(){
+            this.service.yunCollegeLists(this.parentId, this.page, this.limit).then(result => {
+              console.log('--------this.parentId----------'+this.parentId);
+              this.yunLists =  result.page.list;
+              this.pageNumber = result.page.totalPage;
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          }
+        }
+    };
+
+</script>
+
+<style lang="less">
+    .yunlian-word{
+        p{
+            color: #333333;
+            font-size: 14px;
+            text-indent: 30px;
+            line-height: 26px;
+        }
+    }
+    .yun-main-title{
+        color: #ff8a0c;
+        font-size: 30px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .area{
+        width: auto;
+        height: 80px;
+        padding: 8px 8px;
+        border:1px #ededed solid;
+    }
+</style>

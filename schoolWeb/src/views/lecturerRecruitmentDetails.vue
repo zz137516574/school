@@ -1,0 +1,366 @@
+<template>
+    <div id="lecturer">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu"></v-subpageMenu>
+
+        <div class="bannerimg">
+            <img src="../assets/image/lecturer1.jpg" alt="">
+        </div>
+
+        <!--面包屑-->
+        <div class="breadCrumb" style="padding: 8px 0">
+          <breadcrumb></breadcrumb>
+        </div>
+        <!--<Breadcrumb separator=">" class="container m-t-30 m-b-20">-->
+            <!--<BreadcrumbItem to="/index">首页</BreadcrumbItem>-->
+            <!--<BreadcrumbItem to="/lecturerRecruitment">讲师招募</BreadcrumbItem>-->
+            <!--<BreadcrumbItem>讲师招募详情</BreadcrumbItem>-->
+        <!--</Breadcrumb>-->
+
+        <!--招募标题-->
+        <div class="container recruitmentHeader clearfix">
+            <div class="f-fl">
+                <div class="name">{{lecturerInfo.schoolName}}</div>
+                <div class="job">{{lecturerInfo.recruitTitle}}</div>
+                <p class="num">招聘人数：{{lecturerInfo.recruitMemberNumber}}人</p>
+                <p class="time">发布时间：{{lecturerInfo.addTime}}</p>
+            </div>
+            <div class="f-fr">
+                <button @click='applyPosition'>{{applyDatas}}</button>
+            </div>
+        </div>
+
+        <!--招募内容-->
+        <div class="recruitmentcont container clearfix m-t-20">
+            <div class="f-fl leftBlock">
+                <div class="main">
+                    <div class="header clearfix">
+                        <i class="f-fl"></i>
+                        <span class="f-fl">职位描述</span>
+                    </div>
+                    <div class="content">
+                      {{lecturerInfo.recruitRequirement}}
+                    </div>
+                </div>
+                <div class="main">
+                    <div class="header clearfix">
+                        <i class="f-fl"></i>
+                        <span class="f-fl">职位要求</span>
+                    </div>
+                    <div class="content">
+                      {{lecturerInfo.recruitContent}}
+                    </div>
+                </div>
+            </div>
+            <div class="f-fr schoolInfo clearfix">
+                <i class="f-fl"><img :src="lecturerInfo.photo" alt=""></i>
+                <div class="f-fr">
+                    <p class="name">{{lecturerInfo.schoolname}}</p>
+                    <p>院长：{{lecturerInfo.usname}}</p>
+                    <p>联系方式：{{lecturerInfo.phone}}</p>
+                    <p>邮箱：{{lecturerInfo.email}}</p>
+                    <p>学院地址：{{lecturerInfo.address}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!--弹框-->
+        <div class="container clearfix" v-if='hiddenApplyPosition'>
+          <div class="applyDiv clearfix">
+            <i @click='applyPositionSure'></i>
+            <div class="applyDivTop clearfix" v-show="applyDivStatus">
+
+            </div>
+            <div class="applyDivTop1 clearfix" v-show="!applyDivStatus">
+
+            </div>
+          </div>
+        </div>
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import footer from '../components/footer.vue';
+    export default {
+        data() {
+            return {
+              applyDivStatus:true,
+              applyStatus:'',
+              lecturerId:0,
+              top: {},
+              search: {},
+              subpageMenu:{},
+              lecturerInfo:{},
+              hiddenApplyPosition:false,
+              showApplyPosition:true,
+              showApplied: false,
+              userId: 0,
+              userInfo: '',
+              msg: '',
+              teacherId:0,
+              recruitId:0,
+              footer: {},
+              flag: '',
+              applyDatas:'申请职位'
+            };
+        },
+        mounted() {
+          if(window.localStorage.msg) {
+            this.msg = JSON.parse(window.localStorage.msg);
+          }
+          if(window.localStorage.userInfo) {
+            this.userInfo = JSON.parse(window.localStorage.userInfo);
+            this.userId = JSON.parse(window.localStorage.userInfo).userId;
+          }
+          this.teacherId = this.userId;
+          this.lecturerId = this.$route.query.lecId;
+          this.lecturerDetails();
+//          this.applyData();
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-footer': footer
+        },
+        methods: {
+          applyPositionSure(){
+            this.hiddenApplyPosition = false;
+          },
+          // 讲师详情
+          lecturerDetails() {
+            this.service.lecturerDetail(this.lecturerId).then(result => {
+              this.lecturerInfo = result.teacherRecruit;
+              this.recruitId = result.teacherRecruit.id;
+              if(this.recruitId){
+                this.applyData(this.recruitId);
+              }
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          // 职位返回信息
+          applyData(recruitId){
+            this.service.lecturerApply(this.teacherId,recruitId).then(result => {
+              if(result.flag){
+                this.applyDatas = '申请职位';
+              }else{
+                this.applyDatas = '已申请';
+              }
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          // 申请职位
+          applyPosition(){
+            if(this.msg === '登陆成功！'){
+              if(this.applyDatas === '已申请'){
+                this.hiddenApplyPosition = true;
+                this.applyDivStatus = true;
+
+              }else{
+                this.service.lecturerApplyData(this.teacherId,this.recruitId).then(result => {
+                  if(result.code === 0){
+                    this.hiddenApplyPosition = true;
+                    this.applyDivStatus = false;
+                    this.applyDatas = '已申请';
+                  }
+                }).catch(error => {
+                  this.$Message.error({
+                    content: error,
+                    duration: 5
+                  });
+                })
+              }
+            }else{
+              this.$Message.error({
+                content: '请登录成功后进行操作! ',
+                duration: 2
+              });
+              this.$router.push({path: 'login'});
+            }
+          }
+        }
+    };
+
+</script>
+
+<style lang="less">
+    .bannerimg{
+      min-width: 1200px;
+      height: 300px!important;
+        img{
+            width: 100%;
+        }
+    }
+    /*招募标题*/
+    .recruitmentHeader{
+        padding: 30px 25px;
+        box-sizing: border-box;
+        height: 200px;
+        background: #f7f7f7;
+        font-size: 14px;
+        color: #818181;
+        .name{
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #1c1c1c;
+        }
+        .job{
+            font-size: 34px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        p{
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        button{
+            margin-top: 55px;
+            margin-right: 60px;
+            width: 126px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 18px;
+            color: #ffffff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            background: #ff8a0c;
+            cursor: pointer;
+        }
+    }
+    /*招募内容*/
+    .recruitmentcont{
+        margin-bottom: 50px!important;
+        .leftBlock{
+            width: 775px;
+            border: 1px solid #ededed;
+            .main{
+                .header{
+                    padding: 10px 20px;
+                    height: 45px;
+                    box-sizing: border-box;
+                    background: #f8f8f8;
+                    font-size: 18px;
+                    color: #020000;
+                    i{
+                        margin-right: 15px;
+                        width: 6px;
+                        height: 100%;
+                        background: #ff8a0c;
+                    }
+                }
+                .content{
+                    padding: 20px;
+                    font-size: 14px;
+                    line-height: 25px;
+                }
+            }
+        }
+        .schoolInfo{
+            padding: 30px 20px;
+            width: 405px;
+            height: 213px;
+            overflow: hidden;
+            box-sizing: border-box;
+            border: 1px solid #ededed;
+            i{
+                display: block;
+                width: 162px;
+                height: 140px;
+                overflow: hidden;
+                img{
+                    width: 100%;
+                    height: 100%;
+                    background-repeat: no-repeat;
+                    background-size: 100% 100%;
+                    background-image: url('../assets/image/imgbg.jpg');
+                }
+            }
+            .f-fr{
+                padding-left: 10px;
+                width: 55%;
+                font-size: 12px;
+                color: #8b8b8b;
+                box-sizing: border-box;
+                .name{
+                    margin-bottom: 18px;
+                    font-size: 18px;
+                    color: #333333;
+                }
+                p{
+                    margin-bottom: 5px;
+                    font-size: 14px;
+                }
+            }
+
+        }
+    }
+  .applyDiv{
+    width: 520px;
+    height: 300px;
+    padding: 30px 25px;
+    box-sizing: border-box;
+    background: #f3f5f7;
+    border:2px #ff982a solid;
+    border-radius: 10px;
+    position: fixed;
+    left: 52%;
+    right: 50%;
+    top: 40%;
+    margin-left: -300px;
+    .applyDivTop{
+      height: 110px;
+      width: 100%;
+      margin-top: 60px;
+      background-image: url(../assets/image/tishi.png);
+      background-repeat: no-repeat;
+      background-size: 100%;
+    }
+    .applyDivTop1{
+      height: 110px;
+      width: 100%;
+      margin-top: 60px;
+      background-image: url(../assets/image/tishi1.png);
+      background-repeat: no-repeat;
+      background-size: 100%;
+    }
+    i{
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50px;
+      height: 50px;
+      background-image: url(../assets/image/tishi-del.png);
+      background-repeat: no-repeat;
+      background-size: 100%;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+  }
+</style>

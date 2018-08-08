@@ -1,0 +1,236 @@
+<!-- HTML 我的课堂 左侧菜单 -->
+<template>
+    <div class="leftMenu clearfix">
+        <Menu ref="leftMenu" :active-name="this.menuName" :open-names="openName" accordion @on-select="informations">
+            <Submenu v-for="(item,index) in items"
+                      :name="item.location"
+                      :key="index">
+                <template slot="title"
+                          v-if="item.location !== '8'">
+                    {{item.text}}
+                </template>
+
+                <MenuItem slot="title" class="single-menu"
+                          :name="item.location"
+                          v-if="item.location === '8'">
+                  {{item.text}}
+                </MenuItem>
+
+                <MenuItem v-for="(i, position) in item.children"
+                          :name="i.location"
+                          :key="position">
+                    {{i.text}}
+                </MenuItem>
+            </Submenu>
+        </Menu>
+    </div>
+</template>
+
+<script>
+    export default {
+        props: {
+            leftMenu: {},
+        },
+        data() {
+            return {
+                items:[
+                    { text: '个人主页' , location: '3', children:[
+                        {
+                            text: '资料设置' , location: '3-1'
+                        }
+                    ]},
+                    { text: '账户中心' , location: '4', children:[
+//                      {
+//                        text: '我的账户' , location: '4-1'
+//                      },
+                      {
+                        text: '我的订单' , location: '4-2'
+                      },
+//                      {
+//                        text: '我的卡包' , location: '4-3'
+//                      },
+//                      {
+//                        text: '课程推广' , location: '4-4'
+//                      }
+                    ]},
+                    { text: '讲师专区' , location: '5', children:[
+                      {
+                        text: '创建普通课程' , location: '5-1'
+                      },
+                      {
+                        text: '创建系列课课程' , location: '5-2'
+                      },
+                      {
+                        text: '课程审核管理' , location: '5-3'
+                      },
+//                      {
+//                        text: '共享申请' , location: '5-4'
+//                      },
+                      {
+                        text: '系列课列表' , location: '5-5'
+                      },
+                      {
+                        text: '普通课列表' , location: '5-6'
+                      },
+                      {
+                        text: '学生问答' , location: '5-7'
+                      }
+                    ]},
+                    { text: '互动直播' , location: '6', children:[
+                      {
+                        text: '创建课程' , location: '6-1'
+                      },
+//                      {
+//                        text: '创建系列课' , location: '6-2'
+//                      },
+                      {
+                        text: '课程审核管理' , location: '6-3'
+                      },
+                      {
+                        text: '共享申请' , location: '6-7'
+                      },
+                      {
+                        text: '课程列表' , location: '6-4'
+                      },
+//                      {
+//                        text: '系列课列表' , location: '6-5'
+//                      },
+                      {
+                        text: '学生问答' , location: '6-6'
+                      }
+                    ]},
+                    { text: '学习中心' , location: '7', children:[
+                      {
+                        text: '课程列表' , location: '7-1'
+                      },
+                      {
+                        text: '在线直播' , location: '7-2'
+                      },
+                      {
+                        text: '我的收藏' , location: '7-3'
+                      },
+                      {
+                        text: '我的笔记' , location: '7-4'
+                      },
+                      {
+                        text: '我的问答' , location: '7-5'
+                      },
+//                      {
+//                        text: '讲师培训' , location: '7-6'
+//                      }
+                    ]},
+//                    { text: '营销' , location: '8'},
+                ],
+                menuName:'1-1',
+                clickName:'',
+                openName:[]
+            };
+        },
+        mounted() {
+          if(window.localStorage.msg) {
+            this.msg = JSON.parse(window.localStorage.msg);
+          }
+          if(window.localStorage.userInfo) {
+            this.personInfo = JSON.parse(window.localStorage.userInfo);
+            if(this.personInfo.usertype === 0){
+              this.items = this.items.filter(this.checkAdult);
+            }
+          }
+          this.clickName = this.$route.query.name;
+          this.menuListen(this.clickName);
+          this.menuName=this.$route.name;
+          this.$nextTick(function() {
+            this.$refs.leftMenu.updateOpened();
+            this.$refs.leftMenu.updateActiveName();
+          })
+        },
+        beforeCreate(){
+
+        },
+         beforeDestroy() {
+         },
+        methods: {
+          menuListen(clickName){
+            switch(clickName)
+            {
+              case '个人主页':
+                this.openName = ['3'];
+                break;
+              case '账户中心':
+                this.openName = ['4'];
+                break;
+              case '讲师专区':
+                this.openName = ['5'];
+                break;
+              case '互动直播':
+                this.openName = ['6'];
+                break;
+              case '学习中心':
+                this.openName = ['7'];
+                break;
+              default:
+                this.openName = ['3'];
+            }
+          },
+          //      数组筛选回调函数
+          checkAdult(itemData) {
+            return itemData.text !=='讲师专区';
+          },
+            menuGroupClick(name){
+                this.$router.push(name);
+            },
+            informations(name){
+              this.$router.push(name);
+            },
+        },
+        watch: {
+          $route(to, from) {
+            this.menuName=to.name;
+          }
+        },
+    };
+</script>
+
+<style lang="less">
+    .leftMenu {
+        width: 220px;
+        height: auto;
+        border: 1px #ededed solid;
+        border-right: 0;
+
+        .ivu-menu-vertical[style] {
+            width: 100% !important;
+        }
+        .ivu-menu-submenu-title {
+            border-left: 2px #ff8a0c solid;
+            background-color: #f9f9f9;
+        }
+        .ivu-menu-light.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
+            color: #ff8a0c;
+            background-color: #fff9f7;
+            border-right: 1px #dddee1 solid;
+        }
+        .ivu-menu-vertical .ivu-menu-submenu-title {
+            padding: 12px 24px;
+            /*margin-bottom: 2px;*/
+        }
+        .ivu-menu-item:hover {
+            background-color: #fff9f7 !important;
+            border-right: 1px #dddee1 solid !important;
+        }
+
+        .single-menu {
+            padding: 0 !important;
+            background-color: transparent !important;
+            border-right: 0px !important;
+        }
+        .single-menu:hover {
+            background-color: transparent !important;
+            border-right: 0px #dddee1 solid !important;
+        }
+        .single-menu + .ivu-icon {
+          display: none;
+        }
+
+    }
+</style>

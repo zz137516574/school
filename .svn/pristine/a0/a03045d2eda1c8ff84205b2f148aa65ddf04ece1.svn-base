@@ -1,0 +1,482 @@
+<template>
+    <div id="course">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="column"></v-subpageMenu>
+
+        <div class="bannerimg">
+            <img src="../assets/image/column1.jpg" alt="">
+        </div>
+
+        <!--创始人-->
+        <div class="column-founder container">
+            <div class="column-head">
+                <div class="capital">THE FOUNDER</div>
+                <div class="clearfix middle">
+                    <i><img src="../assets/image/column-left.png" alt=""></i>
+                    <span>创始人</span>
+                    <i><img src="../assets/image/column-right.png" alt=""></i>
+                </div>
+                <div>任何的奢华，在朴素面前都显得暗淡无光</div>
+            </div>
+            <div class="founder">
+                <i><img class="founderimg" src="../assets/image/column4.jpg" /></i>
+                <div class="founder-left">
+                    <h2 class="h2">黄明</h2>
+                    <p class="size1">（云联惠创始人）</p>
+                    <p>云联商业大数据设计人，目前担任广东云联惠网络科技有限公司董事长。</p>
+                    <p class="size2">授予荣誉</p>
+                    <p>2014-年中国经济人物</p>
+                    <p>2015-年度中国百名改革创风云人物</p>
+                    <p>2016-年度推动行业经济发展十大创新人物，推动行业经济发展（行业)年度十大创新人物</p>
+                    <p>2017-创新中国（行业）十大榜样人物</p>
+                </div>
+                <div class="founder-right">
+                    <p class="mar50">1983年，黄明毕业从师范学院后成为一名教师，又先后进入中山大学中文系专科和法律系本科深造，并取得律师执照；1993年，富有拼搏精神的黄明成为创业大军中的一员，陆续创办了广东所罗门实业等多家公司。从教书到下海经商，黄明一直揣怀梦想，喜欢挑战，喜欢研究，希望用科技创新来改变生活。</p>
+                    <p class="pad15">做了十几年的传统生意，传统商业市场上的角逐、拼杀、研讨、深究，使黄明发现社会市场的本质和自然规律——传统营销往往要做到面面俱到，就算有孙悟空的“三头六臂”，也很难一直立足市场——只有掌握市场规则的制定权，才能占到市场的云端或制高点。</p>
+                </div>
+                <div class="founder-rectangle"></div>
+            </div>
+        </div>
+
+        <!--幻灯片-->
+        <div class="column_round">
+            <div class="container">
+                <div class="column-head">
+                    <div class="capital">ACTIVITIES NEWS</div>
+                    <div class="clearfix middle">
+                        <i><img src="../assets/image/column-left.png" alt=""></i>
+                        <span>图片集</span>
+                        <i><img src="../assets/image/column-right.png" alt=""></i>
+                    </div>
+                    <div>任何的奢华，在朴素面前都显得暗淡无光</div>
+                </div>
+                <div class="round">
+                    <swiper :options="swiperOption" class="clearfix" ref="mySwiper">
+                        <swiper-slide v-for="(item,index) in photoAll" :key="index">
+                          <img :src="item.photo" alt="">
+                          <div class="img-bg">
+                            <h3>{{item.label}}</h3>
+                            <p>{{item.profile}}</p>
+                          </div>
+                        </swiper-slide>
+
+                        <div class="swiper-button-prev" slot="button-prev"></div>
+                        <div class="swiper-button-next" slot="button-next" ></div>
+                    </swiper>
+
+                </div>
+            </div>
+        </div>
+
+        <!--活动报道-->
+        <div class="column-activity container">
+            <div class="column-head">
+                <div class="capital">ACTIVITIES NEWS</div>
+                <div class="clearfix middle">
+                    <i><img src="../assets/image/column-left.png" alt=""></i>
+                    <span>活动报道集</span>
+                    <i><img src="../assets/image/column-right.png" alt=""></i>
+                </div>
+                <div>任何的奢华，在朴素面前都显得暗淡无光</div>
+            </div>
+            <div class="activity">
+                <ul class="clearfix">
+                    <li class="activityLi" v-for="(item,index) in productData" :key="index" @click="columnDetails(item)">
+                        <div class="activity-img">
+                            <i><img :src="item.newsTitlePhoto"></i>
+                            <p class="activity-date">
+                              {{item.newsAddtimeStr}}
+                            </p>
+                        </div>
+                        <div class="activity-txt">
+                            <p class="font-color1">{{item.newsTitle}}</p>
+                            <p class="font-color2"  v-html="delHtmlTag(item.newsSubTitle)"></p>
+                            <a class="mores">MORE>></a>
+                        </div>
+                    </li>
+                </ul>
+             </div>
+          <!--分页-->
+          <Page :total="pageNumber * 10" class="container text-center" style="padding: 50px 0 100px;" @on-change="newsPageChange"></Page>
+        </div>
+
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import footer from '../components/footer.vue';
+    import VueAwesomeSwiper from 'vue-awesome-swiper';
+    import { swiper, swiperSlide } from 'vue-awesome-swiper';
+
+    Vue.use(VueAwesomeSwiper);
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                footer: {},
+                page: 1,
+                limit: 4,
+                classId: 9,
+                position: 46,
+                pageNumber:1,
+                type:'all',
+                photoAll:'',
+                productData: '',
+                swiperOption: {
+                    loop : true, //是否循环
+                    pagination: '.swiper-pagination',
+                    effect: 'coverflow',  //3D模式
+                    grabCursor: true,
+                    centeredSlides: true,   //居中
+                    nextButton: '.swiper-button-next',
+                    prevButton: '.swiper-button-prev',
+                    slidesPerView: '2',   //显示个数 ，自动
+                    watchActiveIndex: true,
+                    coverflow: {
+                        rotate: 0,// 旋转的角度
+                        stretch: 150,// 拉伸   图片间左右的间距和密集度
+                        depth: 40,// 深度   切换图片间上下的间距和密集度
+                        modifier: 5,// 修正值 该值越大前面的效果越明显
+                        slideShadows : false// 页面阴影效果
+                    }
+                }
+            };
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'v-subpageMenu': subpageMenu,
+            'v-footer': footer,
+            swiper,
+            swiperSlide,
+        },
+        //定义这个sweiper对象
+        computed: {
+            swiper() {
+                return this.$refs.mySwiper.swiper;
+            }
+        },
+        mounted() {
+          this.huangDongPhotos();
+          this.huangDongAreas();
+        },
+        methods: {
+          newsPageChange(pageNum){
+            this.page = pageNum;
+            this.huangDongAreas();
+          },
+          huangDongPhotos(){
+            this.service.huangDongPhoto(this.page, this.limit, this.position,this.type).then(result => {
+              this.photoAll = result.page.list;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          huangDongAreas(){
+            this.service.huangDongSpecialArea(this.page, this.limit, this.classId ).then(result => {
+              this.productData = result.page.list;
+              this.pageNumber = result.page.totalPage;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          columnDetails(item){
+            this.$router.push({ path: 'columnDetails', query: { newsId:item.newsId }});
+          },
+          // 解析字符
+          delHtmlTag(str){
+            let bbq = str;
+            if( bbq !== undefined){
+              bbq = bbq.replace(/&lt;/g, '<');
+              bbq = bbq.replace(/&gt;/g, '>');
+              bbq = bbq.replace(/&nbsp;/g,'  ');
+              bbq = bbq.replace(/&amp;/g,'&');
+              bbq = bbq.replace(/&quot;/g,'"');
+              bbq=bbq.replace("</*[^<>]*>", '');
+
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("::", ':');
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("<>", '');
+              bbq=bbq.replace("</>", '');
+              return bbq;
+            }
+          },
+        }
+    };
+
+</script>
+
+<style lang="less">
+    @import "../../node_modules/swiper/dist/css/swiper.min.css";
+    .bannerimg{
+        height: 300px!important;
+        img{
+            width: 100%;
+        }
+    }
+    /*创始人*/
+    .column-founder{
+        .founder{
+            position: relative;
+            margin-top: 110px;
+            margin-bottom: 135px;
+            i{
+                display: block;
+                width: 732px;
+                height: 455px;
+                overflow: hidden;
+                img{
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+            .founder-left{
+                position: absolute;
+                left: 0;
+                top: -60px;
+                padding: 20px;
+                width: 266px;
+                height: 530px;
+                box-sizing: border-box;
+                color: #ffffff;
+                font-size: 14px;
+                background: url("../assets/image/column2.png") no-repeat;
+                h2{
+                    margin-top: 50px;
+                    margin-bottom: 15px;
+                    font-size: 30px;
+                }
+                .size1{
+                    margin-bottom: 25px;
+                    font-size: 18px;
+                }
+                .size2{
+                    margin-top: 70px;
+                    margin-bottom: 25px;
+                    font-size: 18px;
+                }
+                p{
+                    line-height: 24px;
+                }
+            }
+            .founder-right{
+                position: absolute;
+                top: -60px;
+                right: 0;
+                z-index: -33;
+                padding: 60px 30px 0 80px;
+                width: 522px;
+                height: 410px;
+                box-sizing: border-box;
+                background: #fff4ed;
+                font-size: 14px;
+                color: #333333;
+                .mar50{
+                    margin-bottom: 62px;
+                }
+                p{
+                    line-height: 24px;
+                }
+            }
+            .founder-rectangle{
+                position: absolute;
+                bottom: -15px;
+                right: 290px;
+                width: 198px;
+                height: 145px;
+                background: url("../assets/image/column3.jpg") no-repeat;
+            }
+        }
+    }
+    .column-head{
+        padding-top: 70px;
+        font-size: 16px;
+        color: #000000;
+        text-align: center;
+        .capital{
+            font-size: 22px;
+            color: #999999;
+            margin-bottom: 7px;
+        }
+        .middle{
+            margin-bottom: 15px;
+        i{
+            display: inline-block;
+            margin-top: -5px;
+        }
+        span{
+            padding: 0 10px;
+            font-size: 34px;
+        }
+        }
+    }
+    /*幻灯片*/
+    .column_round{
+        height: 843px;
+        background: #f3f3f3;
+        box-sizing: border-box;
+        .round{
+            position: relative;
+            margin: 75px auto 0 auto;
+            box-sizing: border-box;
+            width: 100%;
+            height: 460px;
+            .swiper-container {
+                width: 1200px;
+                height: 100%;
+                margin: 0;
+                .swiper-slide {
+                    background-position: center;
+                    background-size: 130% 120%;
+                    opacity: 0.8;
+                }
+                .swiper-slide img {
+                    display: block;
+                    width: 80%;
+                    height: 100%;
+                    background-image: url('../assets/image/imgbg.jpg');
+                    background-repeat: no-repeat;
+                    background-size: 100% 100%;
+                }
+                .swiper-slide-active[style] {
+                    width: 100% !important;
+                    transform: translate3d(-300px, 0px, 100px) rotateX(0deg) rotateY(0deg) !important;
+                    opacity: 1;
+                }
+                .swiper-button-prev{
+                    top: 225px;
+                    left: 166px;
+                    width: 33px;
+                    height: 33px;
+                    background-color: #FFFFFF;
+                    background-size: 50% 50%;
+                }
+                .swiper-button-next{
+                    top: 225px;
+                    left: 199px;
+                    width: 33px;
+                    height: 33px;
+                    background-color: #FFFFFF;
+                    background-size: 50% 50%;
+                }
+            }
+            .img-bg{
+                width: 386px;
+                height: 386px;
+                background: url("../assets/image/column-bg.png") no-repeat;
+                position: absolute;
+                top: 30px;
+                right: 15px;
+                z-index: 30;
+                color: #FFFFFF;
+                overflow: hidden;
+                h3{
+                   margin: 44px 35px 0 35px;
+                   font-size: 22px;
+                   padding-bottom: 25px;
+                   border-bottom: 1px solid #FFFFFF;
+               }
+                p{
+                  font-size: 14px;
+                  margin: 23px 35px 23px 35px;
+                  line-height: 30px;
+                  height: 205px;
+                  overflow: hidden;
+                }
+            }
+        }
+    }
+    /*活动报道*/
+    .column-activity{
+        height: 765px;
+        box-sizing: border-box;
+        .activity{
+            padding-top: 50px;
+            .activityLi{
+                position: relative;
+                float: left;
+                margin-right: 20px;
+                width: 386px;
+                height: 407px;
+                cursor: pointer;
+                i{
+                    display: block;
+                    width: 387px;
+                    height: 251px;
+                    overflow: hidden;
+                    background-image: url('../assets/image/imgbg.jpg');
+                    background-repeat: no-repeat;
+                    background-size: 100% 100%;
+                    img{
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+                .activity-date{
+                    position: absolute;
+                    left: 10px;
+                    top: 0;
+                    width: 80px;
+                    height: 30px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #ffffff;
+                    line-height: 30px;
+                    background: #f88100;
+                }
+                .activity-txt{
+                    padding: 30px 15px;
+                    box-sizing: border-box;
+                    height: 155px;
+                    color: #666666;
+                    font-size: 12px;
+                    background: #f7f7f7;
+                    .font-color1{
+                        margin-bottom: 10px;
+                        font-size: 16px;
+                        color: #343434;
+                    }
+                    .font-color2{
+                        line-height: 20px;
+                    }
+                    a.mores{
+                        color: #666666;
+                        display: block;
+                        padding-top: 25px;
+                    }
+                }
+            }
+            .activityLi:nth-child(3n){
+              margin-right: 0;
+            }
+            .activityLi:hover{
+                .activity-txt{
+                    background: #f88100;
+                    color: #ffffff;
+                    .font-color1,a.mores{
+                        color: #ffffff;
+                    }
+                }
+            }
+        }
+    }
+</style>

@@ -1,0 +1,151 @@
+<!-- 公用层 -->
+<template>
+<div class="container clearfix">
+  <div id="courseItem">
+    <ul class="courseItemUl clearfix">
+      <li class="courseItemLi clearfix" v-for="(item,index) in courseData.list" :key="index" @click="freeCourse(item)">
+        <div class="courseTop">
+          <img :src="item.photo" alt="" v-if="item.hasOwnProperty('photo')">
+        </div>
+        <div class="courseBottom">
+          <div class="top">
+            <span class="courseTitle" v-if="item.hasOwnProperty('courseName')">{{item.courseName}}</span>
+            <span class="courseState" v-if="item.typeStr == '视频直播'|| item.typeStr == '视频文档直播'" style="background: #55a7d9">{{item.typeStr}}</span>
+            <span class="courseState" v-if="item.typeStr == '音频直播'|| item.typeStr == '音频文档直播'" style="background: #ff8a0c">{{item.typeStr}}</span>
+          </div>
+          <div class="clearfix ">
+            <span class="courseTime f-fl" v-if="item.hasOwnProperty('createTime')">{{item.createTime}}</span>
+            <label class="f-fr price"  v-if="item.price != 0 "><span  style="color: #ff8a0c;">￥{{item.price | currency}}</span></label>
+            <label class="f-fr price"  v-if="item.price == 0 "  style="color: #ff8a0c;">免费</label>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <Page :total="courseData.totalPage * 10" class="container text-center" @on-change="newsPageChange"></Page> <!---->
+</div>
+</template>
+
+<script>
+    export default {
+        props: {
+          courseData: {
+              required: true
+            },
+        },
+        data() {
+            return {
+              courseParentData:{ type1:1, data1:0 },
+              totalPage: 0
+            };
+        },
+        mounted() {
+          this.createUser = this.userId;
+        },
+        beforeDestroy() {
+
+        },
+        filters:{      //数据过滤器
+        currency:function(x){
+          try {
+            let f_x1 = parseFloat(x);
+            if (isNaN(f_x1)) {
+              return x;
+            }
+            let f_x = Math.round(x * 100) / 100;
+            let s_x = f_x.toString();
+            let pos_decimal = s_x.indexOf('.');
+            if (pos_decimal < 0) {
+              pos_decimal = s_x.length;
+              s_x += '.';
+            }
+            while (s_x.length <= pos_decimal + 1) {
+              s_x += '0';
+            }
+            return s_x;
+          } catch (e) {
+            return '0.00';
+          }
+        }
+
+      },
+        methods: {
+          newsPageChange(pageNum){
+            this.$emit('coursePageRefer', pageNum);
+          },
+          freeCourse(item) {
+              this.$emit('courseDetailsRefre', item);
+            }
+        }
+    };
+</script>
+<style lang="less">
+    li.courseItemLi{
+        float: left;
+        margin-top: 30px;
+        margin-right: 21px;
+        width: 282px;
+        height: 249px;
+        border: 1px #ededed solid;
+        background-color: #ffffff;
+        cursor: pointer;
+        -webkit-transition: all .4s ease;
+        transition: all .4s ease;
+        .courseTop{
+            width: 100%;
+            height: 172px;
+            overflow: hidden;
+            cursor: pointer;
+            background-image: url('../../assets/image/imgbg.jpg');
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            img{
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .courseBottom{
+            width: 100%;
+            height: 75px;
+            padding: 10px 10px;
+            box-sizing: border-box;
+            .top{
+                margin-bottom: 12px;
+                font-size: 14px;
+                color: #2a2a2a;
+                background: #ffffff;
+                .courseState{
+                    margin-left: 10px;
+                    font-size: 12px;
+                    border-radius: 3px;
+                    padding: 5px 8px;
+                    color: #ffffff;
+                    background: #55a7d9;
+                }
+            }
+            .courseTime{
+                font-size: 14px;
+                color: #999999;
+            }
+            .price{
+                margin-top: -3px;
+                font-size: 18px;
+                color: #ff8a0c;
+            }
+        }
+    }
+
+    li.courseItemLi:nth-child(4n){
+      margin-right: 0;
+    }
+    li.courseItemLi:hover {
+      transform: translateY(-8px);
+      -webkit-transform: translateY(-8px);
+      -moz-transform: translateY(-8px);
+      box-shadow: 0 5px 20px 5px #e0e0e0;
+      -webkit-box-shadow: 0 5px 20px 5px #e0e0e0;
+      -moz-box-shadow: 0 5px 20px 5px #e0e0e0;
+      -webkit-transition: all .4s ease;
+      transition: all .4s ease;
+    }
+</style>

@@ -1,0 +1,585 @@
+<template>
+    <div id="class">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu"></v-subpageMenu>
+        <div style="display: none">
+          <breadcrumb></breadcrumb>
+        </div>
+        <!--banner-->
+        <div class=" clearfix yun-info-div">
+          <div class="clearfix container">
+            <div class="yun-info-header f-fl">
+              <img :src="yunColInfo.photo"/>
+            </div>
+            <div class="f-fl m-l-25 m-t-10">
+              <p>
+                <span class="yun-name m-r-25">{{yunColInfo.schoolName}}</span>
+                <img class="m-r-25" src="../assets/image/yun-renzheng.png"/>
+                <span class="yun-person">粉丝
+                  <span v-text="schoolCount"></span>
+                </span>
+              </p>
+              <p class="yun-address m-t-10">地址：{{yunColInfo.address}}</p>
+              <p class="yun-email m-t-10">联系邮箱：{{yunColInfo.schoolemail}}</p>
+              <p class="m-t-15 yun-guanzhu" @click="follow"> <span>{{noticeData}}</span></p>
+            </div>
+            <div class="yun-info-word f-fr text-center">
+              <p>{{yunColInfo.schooltagline}}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="yun-body clearfix container m-t-20 m-b-20">
+            <Tabs value="name1" class="container">
+                <TabPane label="商学院简介" name="name1">
+                    <div class="yun-introduce">
+                        <!--word-->
+                        <div class="clearfix yunlian-word p-t-50 p-b-50">
+                            <p>国际瞬息万变，花费引领风流，花费已成为拉动我国经济增长“三驾马车”的一匹微弱“千里马”。我国经济进入新常态后，公司需求寻找新的突破口，一场市场经济、新式形式的花费革新风暴必然点着!</p>
+                            <p>作为互联网+年代的积极践行者，花费立异的先驱者，广东云联惠网络科技有限公司以花费者需求为规范，以增进花费者福祉为方针，充沛激起社会花费潜能，正在敞开一个全民立异花费大年代!</p>
+                            <p>来自大江南北的客户商家云粉们聚集云联惠各地商学院，接受云联惠商学院的训练学习，内容囊括云联商业大体系的构成、文化内在，运营形式，财富永动机原理，疑问解答，实操运作，署理解说等，旨在让云联商家和广阔会员深化了解云联惠，全部把握云联惠开展形式，传达云联精力理念，带动万众立异，全民创业，完成人人敢花费，个个乐花费!</p>
+                        </div>
+
+                        <!--<div class="clearfix">-->
+                            <!--<Timeline style="margin-left: 100px;float: left">-->
+                                <!--<p class="time-title">授课方式</p>-->
+                                <!--<TimelineItem>-->
+                                    <!--<p class="time">1976年</p>-->
+                                    <!--<p class="content content1">在线直播讲课<br/>录播、面授<br/>音频FM<br/>...</p>-->
+                                <!--</TimelineItem>-->
+                                <!--<p class="time-title">师资力量</p>-->
+                                <!--<TimelineItem>-->
+                                    <!--<p class="time">一个团队</p>-->
+                                    <!--<p class="content">我们拥有资深讲师、优秀的技术人才<br/>合作  团结  发展  交流  共赢</p>-->
+                                    <!--<p class="time m-t-25">一个目标</p>-->
+                                    <!--<p class="content">为客牟利，促进销售，培养行业领袖；<br/>传递财富，传承共赢，传播事业博爱。赢</p>-->
+                                <!--</TimelineItem>-->
+                            <!--</Timeline>-->
+                        <!--</div>-->
+
+                        <!--<div class="clearfix container">-->
+                            <!--<Input v-model="value6" type="textarea" :rows="4" placeholder="2000字" style="width: 100% !important;margin-top: 40px;"></Input>-->
+                            <!--<div class="more-button container yun-button">评论</div>-->
+                        <!--</div>-->
+
+                        <!--<ul class="clearfix container m-t-20 m-b-20 ">-->
+                            <!--<li class="yun-pinlun p-l-10">-->
+                                <!--<p class="yun-pinlun-all m-t-10 m-b-10">全部评论<span class="yun-pingln-num m-l-10">20</span></p>-->
+                                <!--<div class="m-t-20">-->
+                                    <!--<div class="yun-pinlun-header f-fl">-->
+                                    <!--</div>-->
+                                    <!--<div class="f-fl m-l-25 m-t-10">-->
+                                        <!--<p><span class="yun-pinlun-name m-l-10">习者</span><span class="yun-pinlun-time m-l-20">20天前</span></p>-->
+                                        <!--<p class="yun-pinlun-content m-l-10 m-t-10">习者习者习者习者习者习者习者习者习者习者习者习者习者习者习者</p>-->
+                                        <!--<p class="yun-pinlun-some"><a><img src="../assets/image/yun-pinglun-1.png"/></a><a><img src="../assets/image/yun-pinglun-2.png" class="m-l-20"/><span class="p-l-5 pinglun-num">0</span></a></p>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</li>-->
+                            <!--<li class="yun-pinlun p-l-10">-->
+                                <!--<div class="p-t-40">-->
+                                    <!--<div class="yun-pinlun-header f-fl">-->
+                                    <!--</div>-->
+                                    <!--<div class="f-fl m-l-25 m-t-10" >-->
+                                        <!--<p><span class="yun-pinlun-name m-l-10">习者</span><span class="yun-pinlun-time m-l-20">20天前</span></p>-->
+                                        <!--<p class="yun-pinlun-content m-l-10 m-t-10">习者习者习者习者习者习者习者习者习者习者习者习者习者习者习者</p>-->
+                                        <!--<p class="yun-pinlun-some"><a><img src="../assets/image/yun-pinglun-1.png"/></a><a><img src="../assets/image/yun-pinglun-2.png" class="m-l-20"/><span class="p-l-5 pinglun-num">0</span></a></p>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</li>-->
+                            <!--<li class="yun-pinlun-last p-l-10">-->
+                                    <!--查看更多评论-->
+                            <!--</li>-->
+                        <!--</ul>-->
+                    </div>
+                </TabPane>
+                <TabPane label="师资力量" name="name2" class="yun-shizi">
+                  <v-yunCommonDiv :yunCommonDiv="yunCollegeTeach" v-on:teaPageRefer="yunCollegeTeachers" v-on:refre="teacherInfoOn"></v-yunCommonDiv>
+                </TabPane>
+                <TabPane label="在教课程" name="name3" class="yun-kecheng">
+                  <v-coursedivItem :courseData="coursedivItem" v-on:courseDetailsRefre="courseDetails" v-on:coursePageRefer="courseAreas"></v-coursedivItem>
+                </TabPane>
+                <TabPane label="在教系列课" name="name4" class="yun-banji">
+                  <v-commonSeriesDiv :seriesData="seriesCourseData" v-on:seriesRefre="seriesCourseDetails" v-on:pageRefer="seriesLessons"></v-commonSeriesDiv>
+                </TabPane>
+                <TabPane label="直播列表" name="name5" class="yun-zhibo">
+                  <v-liveSearchVolume :liveSearchVolume="liveSearchVolume" v-on:liveSearchs="liveSearch" class="m-t-10"></v-liveSearchVolume>
+                  <div class="tabCont">
+                      <v-courseItem :courseData="liveBroadcastDate" v-on:refre="liveDetail" v-on:pagesRefer="liveNavLists"></v-courseItem>
+                  </div>
+                </TabPane >
+            </Tabs>
+        </div>
+      <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import yunCommonDiv from '../components/yunlianCollege/yunCommonDiv.vue';
+    import commonSeriesDiv from '../components/index/commonSerieDiv.vue';
+    import coursedivItem from '../components/course/coursedivsItem.vue';
+    import courseItem from '../components/course/coursesItem.vue';
+    import liveSearchVolume from '../components/live/liveSearchVolume.vue';
+    import footer from '../components/footer.vue';
+    var faker = require("faker");
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                yunCommonDiv:{},
+                seriesCourseData:'',
+                coursedivItem:{},
+                commonSeriesDiv:{},
+                courseItem:{},
+                yunColInfo:{},
+                liveSearchVolume:{},
+                value6:'',
+                yunCollegeTeach:'',
+                schoolCount:0,
+                page:1,
+                limit:16,
+                schoolId:1,
+                onorsome:0,
+                schoolid:1,
+                courseType:0,
+                liveState:0,
+                liveNavList:'',
+                liveBroadcastDate: '',
+                changeLi: 0,
+                liveId: 0,
+                liveName:'',
+                itemData:1,
+                seriesCourseId: '',
+                userId: 0,
+                footer: {},
+                msg: '',
+                oldInfo:'',
+                personInfo:'',
+                type:0,
+                recordType:4,
+                noticeData:'关注'
+            }
+        },
+        mounted() {
+          this.schoolId = this.$route.query.newsID;
+          this.schoolid = this.$route.query.newsID;
+
+          if(window.localStorage.msg)
+          {
+            this.msg = JSON.parse(window.localStorage.msg);
+          }
+          if(window.localStorage.userInfo)
+          {
+            this.userInfo = JSON.parse(window.localStorage.userInfo);
+            this.userId = JSON.parse(window.localStorage.userInfo).userId;
+//            if(this.userInfo.usertype === 0){
+//              this.topMenu = this.topMenu.filter(this.checkAdult);
+//            }
+          }
+          this.yunDetails();
+          this.yunCollegeTeachers(this.itemData);
+          this.seriesLessons(this.itemData);
+          this.courseAreas(this.itemData);
+          this.liveNavLists(this.itemData);
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-yunCommonDiv': yunCommonDiv,
+            'v-commonSeriesDiv': commonSeriesDiv,
+            'v-coursedivItem': coursedivItem,
+            'v-courseItem': courseItem,
+            'v-liveSearchVolume': liveSearchVolume,
+            'v-footer': footer
+        },
+        methods: {
+          //学院详情
+          yunDetails() {
+            this.service.yunCollegeDetail(this.schoolId, this.userId, this.type, this.recordType).then(result => {
+              this.yunColInfo = result.school;
+              this.schoolCount = result.school.schoolCount;
+              if(result.school.isAttened  === 1){
+                this.noticeData = '已关注';
+              }else{
+                this.noticeData = '关注';
+              }
+            }).catch(error => {
+              if(error === 'token失效，请重新登录'){
+                this.$Message.info({
+                  content: '当前登陆状态已过期,请重新登陆',
+                  duration: 5
+                });
+              }else{
+                this.$Loading.error();
+              }
+            })
+          },
+          // 点击关注事件
+          follow(){
+            if(this.msg === '登陆成功！'){
+                if(this.noticeData === '关注'){
+                  this.service.collegeCourseNotice(this.type, this.schoolId, this.recordType, this.userId).then(result => {
+                  if(result.code === 0 ){
+                    this.noticeData = '已关注';
+                    this.$Message.success('恭喜你，成功关注该学院！');
+                    this.schoolCount++;
+                  }
+                  }).catch(error => {
+                    if(error === 'token失效，请重新登录'){
+                      this.$Message.info({
+                        content: '当前登陆状态已过期,请重新登陆',
+                        duration: 5
+                      });
+                    }else{
+                      this.$Message.error({
+                        content: error,
+                        duration: 10
+                      });
+                    }
+                  })
+                }else{
+                  this.service.collegeCourseDelete(this.type, this.schoolId, this.recordType, this.userId).then(result => {
+                    if(result.code === 0 ){
+                      this.noticeData = '关注';
+                      this.$Message.success('你已取消关注该学院！');
+                      this.schoolCount--;
+                    }
+                  }).catch(error => {
+                    if(error === 'token失效，请重新登录'){
+                      this.$Message.info({
+                        content: '当前登陆状态已过期,请重新登陆',
+                        duration: 5
+                      });
+                    }else{
+                      this.$Message.error({
+                        content: error,
+                        duration: 10
+                      });
+                    }
+                  })
+                }
+              }else{
+                this.$Message.error({
+                  content: '请登录成功后进行操作! ',
+                  duration: 10
+                });
+                this.$router.push({path: 'login'});
+            }
+          },
+          //师资力量
+          yunCollegeTeachers(pageNumber){
+            this.page = pageNumber;
+            this.limit = 4;
+            this.service.yunCollegeTeacher(this.page,this.limit,this.schoolid).then(result => {
+              this.yunCollegeTeach = result.page;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //师资力量跳转详情页
+          teacherInfoOn(itemId){
+            this.$router.push({path: 'assLecturersInfo', query: {newsID: itemId}});
+          },
+          //在教系列课
+          seriesLessons(pageNumber) {
+            this.page = pageNumber;
+            this.limit = 4;
+            this.service.seriesLesson(this.page,this.limit,this.schoolId).then(result => {
+              this.seriesCourseData = result.page;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //在教系列课跳转详情页
+          seriesCourseDetails(itemId) {
+            this.onorsome = 1;
+            if(this.onorsome === 1){ //系列课程
+              this.$router.push({ path: 'freeSeriesCourse', query: { onorsome:this.onorsome, seriesCourseId: itemId.courseId, price: itemId.price}});
+            }
+          },
+          //在教课程
+          courseAreas(pageNumber){
+            this.page = pageNumber;
+            this.limit = 4;
+            this.service.yunCourse(this.page,this.limit,this.schoolId,this.courseType).then(result => {
+              this.coursedivItem = result.page;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //在教课程跳转详情页
+          courseDetails(itemId) {
+            this.onorsome = 0;
+            if(this.onorsome === 0){  //普通课程
+              this.$router.push({ path: 'freeCourse', query: { onorsome:this.onorsome, courseId: itemId.courseId, price: itemId.price}});
+            }
+          },
+
+          //直播列表内容
+          liveNavLists(pageNumber){
+            this.page = pageNumber;
+            this.limit = 4;
+            this.service.liveList(this.page,this.limit,this.schoolId,this.liveState).then(result => {
+              this.liveBroadcastDate =  result.page;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //直播列表修改直播状态ID 刷新数据
+          liveSearch(ID) {
+            if(ID.indexOf('a')!=-1){
+              ID = ID.replace('a','');
+              this.liveState = ID;  // 待直播、正在直播、直播完毕 ID
+              this.liveNavLists(this.itemData);
+            }
+          },
+          //直播列表跳转详情
+          liveDetail(item) {
+            if(item.onorsome === 0){  //普通课程
+              this.onorsome = 0;
+              this.$router.push({ path: 'DirectCourseDetails', query: { onorsome:this.onorsome, courseId:item.courseId, price:item.price}});
+            }
+            if(item.onorsome === 1){ //系列课程
+              this.onorsome = 1;
+              this.$router.push({ path: 'DirectCourseDetailsSeries', query: { onorsome:this.onorsome, seriesCourseId:item.courseId, price:item.price}});
+            }
+          }
+        }
+    }
+
+</script>
+
+<style lang="less">
+    .yun-info-div{
+      width:100% !important;
+      height: 244px !important;
+      background-image: url("../assets/image/yun-info-bk.jpg");
+      background-size: 100% 100%;
+      padding: 50px 10px;
+      .yun-info-header{
+        width: 144px !important;
+        height: 144px !important;
+        border:3px #ffffff solid;
+        border-radius: 50%;
+        overflow: hidden;
+        display: block;
+        background-repeat: no-repeat;
+        background-image: url('../assets/image/imgbg.jpg');
+        background-size: 100% 100%;
+        img{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      div{
+        p{
+          font-size: 14px;
+          color: #333333;
+          .yun-name{
+            font-size: 20px;
+            font-weight: 700;
+          }
+          .yun-person{
+            color: #3e3e3e;
+          }
+        }
+        .yun-guanzhu{
+          width: 75px !important;
+          height: 26px !important;
+          background-color: #ff8a0c;
+          border-radius: 5px;
+          color: #ffffff;
+          font-size: 12px;
+          text-align: center;
+          line-height: 26px;
+          cursor: pointer;
+        }
+        .yun-guanzhu:hover{
+          background-color: #ff5f57;
+        }
+      }
+      .yun-info-word{
+        width: 400px !important;
+        height: 144px !important;
+        background-color: #ffffff;
+        border-radius: 6px;
+        color: #505050;
+        font-size: 14px;
+        padding: 48px 74px;
+        overflow: hidden;
+      }
+    }
+    .yun-body{
+        padding-top: 30px;
+        padding-bottom: 30px;
+        background: #ffffff;
+        .ivu-tabs-nav {
+          width: 100%;
+          .ivu-tabs-tab {
+            width:20%;
+            text-align: center;
+            font-size: 18px;
+            margin-right: 0 !important;
+          }
+          .ivu-tabs-tab:hover {
+            color: #ff8a0c;
+          }
+          .ivu-tabs-tab-active {
+            color: #ff8a0c;
+            border-bottom: 3px #ff8a0c solid;
+          }
+        }
+        .ivu-tabs-ink-bar{
+          display: none !important;
+        }
+        .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-nav-container {
+          height: 40px;
+        }
+        .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+          height: 39px;
+        }
+        .yun-introduce{
+            .yunlian-word{
+                p{
+                    color: #333333;
+                    font-size: 14px;
+                    text-indent: 30px;
+                    line-height: 26px;
+                }
+            }
+            .ivu-timeline{
+                .ivu-timeline-item{
+                    .ivu-timeline-item-tail{
+                        left:18px;
+                    }
+                    .ivu-timeline-item-head {
+                        width: 36px;
+                        height: 36px;
+                        background-color: #fff;
+                        border-radius: 50%;
+                        border: 1px solid transparent;
+                        position: absolute;
+                    }
+                    .ivu-timeline-item-head-blue{
+                        border-color: #ff8a0c;
+                        color: #ff8a0c;
+                    }
+                    .ivu-timeline-item-content{
+                        padding-left:52px;
+                    }
+                }
+            }
+            .time-title{
+                font-size: 20px;
+                color: #000;
+                font-weight: 600;
+                float: left;
+                margin-left: -100px;
+            }
+            .time{
+                font-size: 20px;
+                color: #000;
+                padding-top: 6px;
+            }
+            .content{
+                padding-left: 5px;
+                padding-top: 10px;
+                color: #646464;
+                font-size: 14px;
+            }
+            /*输入框*/
+            .content1{
+                width: 800px;
+                background-color: #fdf7f5;
+                border:1px #cfcfcf solid;
+            }
+            .ivu-input{
+                width:1200px;
+                background-color: #ebebeb;
+                text-align: right;
+                color: #999999;
+                font-size: 14px;
+            }
+            .yun-button{
+                background-color: #ff8a0c;
+                float: right;
+                border:none;
+                color: #ffffff;
+                width: 110px !important;
+                margin-top: 20px;
+            }
+            /*评论*/
+            .yun-pinlun{
+                width: 1200px;
+                height: 146px;
+                background-color: #fff;
+                font-size: 14px;
+                border-top: 1px #dddddd solid;
+                .yun-pinlun-all{
+                    color: #333333;
+                }
+            }
+
+            /*全部评论*/
+            .yun-pinlun-header{
+                width: 66px !important;
+                height: 66px !important;
+                border-radius: 50%;
+                background-image: url("../assets/image/yun-pinglun.png");
+                background-size: 100% 100%;
+            }
+            .yun-pinlun-name{
+                font-weight: bold;
+                float: left;
+            }
+            .yun-pinlun-content{
+                float: left;
+            }
+            .yun-pinlun-some{
+                float: right;
+                margin-top: 20px;
+                margin-left: 600px;
+                .pinglun-num{
+                    font-size: 12px;
+                    color: #b2b2b2;
+                }
+            }
+            .yun-pinlun-last{
+                background-color: #f4f4f4;
+                height: 50px;
+                border-top: 1px #dddddd solid;
+                text-align: center;
+                line-height: 50px;
+                color: #ff8a0c;
+                font-size: 14px;
+                cursor: pointer;
+            }
+        }
+        .yun-shizi,.yun-banji,.yun-kecheng,.yun-zhibo{
+            padding-top: 30px;
+        }
+        .yun-zhibo{
+          .ivu-radio-group{
+            display: none;
+          }
+        }
+    }
+</style>

@@ -1,0 +1,287 @@
+<!-- 讲师专区 / 创建课程 -->
+<template>
+  <div class="creatingCourses clearfix">
+    <!-- title -->
+    <div class="title">
+      <span class="tit">创建系列课程</span>
+      <span style="margin-left: 20px;font-size: 12px;color: red;">温馨提示：创建课程前，请先绑定云联惠账号！！！</span>
+    </div>
+
+    <!-- 表单 -->
+    <div class="content">
+      <Form  ref="seriesCoursesForm" :model="seriesCoursesForm" label-position="left" :label-width="80">
+
+        <div style="margin-bottom: 25px">
+          <span style="font-size: 14px;padding-right:10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>课程名称</span>
+          <Input v-model="seriesCoursesForm.seriesCourseName"></Input>
+        </div>
+
+        <div style="margin-bottom: 25px">
+          <span style="font-size: 14px;padding-right:10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>开始时间</span>
+          <DatePicker type="datetime" format="yyyy-MM-dd HH:mm:ss"  style="width: 200px"  @on-change="handleChange"></DatePicker>
+        </div>
+
+        <div style="margin-bottom: 20px">
+          <span style="font-size: 14px;padding-right:10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>课程分类</span>
+          <Select  @on-change="personSeriesCourseChange" >
+            <Option v-for="(item,index) in personSeriesCourseListData" :key="index" :value="index">{{item.className}}</Option>
+          </Select>
+        </div>
+
+        <!-- 图片上传 -->
+        <div style="margin-bottom: 25px">
+          <div style="font-size: 14px;padding-right:10px;margin-bottom: 10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>封面设置</div>
+          <v-imageEditor v-on:imageRefer="acceptImage"></v-imageEditor>
+        </div>
+
+        <!-- 课程价格 -->
+        <div style="margin-bottom: 25px">
+          <span style="font-size: 14px;padding-right:10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>课程价格</span>
+          <Input v-model="seriesCoursesForm.price"></Input>
+          <!--<span style="display:inline-block;font-size: 12px;color: red;padding-left: 10px;">* 课程价格不能低于1元</span>-->
+        </div>
+
+        <!-- 收费类型 -->
+        <div style="margin-bottom: 25px">
+          <span style="font-size: 14px;padding-right:10px"><span style="color:red;font-size:16px;padding-right: 8px;vertical-align: middle;padding-top: 7px; display: inline-block;">*</span>收费类型</span>
+          <Select  @on-change="chargeTypeChange">
+            <Option v-for="(item,index) in chargeTypeList" :key="index" :value="index">{{ item.codeValue}}</Option>
+          </Select>
+        </div>
+
+        <!-- textarea -->
+        <div style="margin-bottom: 25px">
+          <span style="display: block;font-size: 14px;padding-bottom:20px">课程简介</span>
+          <textarea name="" id="" rows="10" placeholder="请输入您的信息！" v-model="seriesCoursesForm.profiles" style="width: 850px"></textarea>
+        </div>
+
+        <!-- 富文本 -->
+        <!--<FormItem label="课程简介" class="padd-top">-->
+          <!--<div id="editor"></div>-->
+        <!--</FormItem>-->
+
+        <Button type="warning" class="m-t-30"  @click="personalSeriesSubmi('seriesCoursesForm')">保存</Button>
+      </Form>
+    </div>
+
+  </div>
+</template>
+
+<script>
+  import imageEditor from '../../imageEditor/imageEditor.vue';  //图片裁剪
+
+  export default {
+    data () {
+      return {
+//        editor: null,
+        headteacher:'',
+        nowTime:'',
+        personSeriesCourseListData:'',
+        chargeTypeList:'',
+        imageEditor:{},
+        photo:'',
+        ext:'',
+        seriesCoursesForm: {
+          seriesCourseName: '',
+          startTimeStr: '',
+          classify: 0,
+          select: '',
+          charge: '',
+          price: '',
+          profiles: '',
+          chargePattern: 0,
+          seriesCourseType:0,//课程专区0 互动直播1
+        },
+        memberId: ''
+      };
+    },
+    components: {
+      'v-imageEditor': imageEditor
+    },
+    mounted (){
+      if(window.localStorage.msg)
+      {
+        this.msg = JSON.parse(window.localStorage.msg);
+      }
+      // 获取用户信息
+      if(window.localStorage.userInfo)
+      {
+        this.userInfo = JSON.parse(window.localStorage.userInfo);
+        this.headteacher =  this.userInfo.userId;
+      }
+      // 获取用户绑定后的信息
+      if(window.localStorage.memberInfo){
+        this.memberInfo = JSON.parse(window.localStorage.memberInfo);
+        this.memberId = JSON.parse(window.localStorage.memberInfo).memberId;
+      }
+//      this.editor = UE.getEditor('editor');
+      this.personnalSeriesCourseTypes();   //课程分类
+      this.chargeType();    //直播类型
+    },
+    methods: {
+      //  上传图片
+      acceptImage(imageData){
+        this.photo = imageData.photo;
+        this.ext = imageData.ext;
+      },
+      //  获取日期
+      handleChange (date) {
+        this.seriesCoursesForm.startTimeStr = date;
+      },
+      //  课程分类判断
+      CourseTypeChange(item){
+        this.courseTypeData = item;
+        if(item == '所有'){
+          this.seriesCoursesForm.vipLevel = '1,2,3,4,5,6';
+        }
+      },
+      //  课程分类
+      personnalSeriesCourseTypes(){
+        this.service.personnalCourseType().then(result => {
+          console.log(result);
+          this.personSeriesCourseListData = result.list;
+        }).catch(error => {
+          this.$Message.error({
+            content: error,
+            duration: 5
+          });
+        })
+      },
+      //  课程分类选择
+      personSeriesCourseChange(index){
+        this.seriesCoursesForm.classify = this.personSeriesCourseListData[index].classId;
+      },
+      //  收费类型
+      chargeType(){
+        this.service.seriesChargeTypes().then(result => {
+          this.chargeTypeList = result.list;
+        }).catch(error => {
+          this.$Message.error({
+            content: error,
+            duration: 5
+          });
+        })
+      },
+      //  收费类型选择
+      chargeTypeChange(index){
+        console.log(this.chargeTypeList[index].id);
+        this.seriesCoursesForm.chargePattern=this.chargeTypeList[index].id;
+      },
+      //  课程创建
+      personalSeriesSubmi(name){
+        if(window.localStorage.memberInfo != null && window.localStorage.memberInfo != undefined){
+          // 获取富文本组件的内容
+//          this.seriesCoursesForm.profiles = this.editor.getContentTxt();
+          // 表单校验
+          if(!this.seriesCoursesForm.seriesCourseName){
+            this.$Message.error("课程名不能为空");
+            return false;
+          }
+          if(!this.seriesCoursesForm.startTimeStr){
+            this.$Message.error("开始时间不能为空");
+            return false;
+          }
+          if(!this.seriesCoursesForm.classify){
+            this.$Message.error("课程分类不能为空");
+            return false;
+          }
+          if(!this.photo){
+            this.$Message.error("封面图片不能为空");
+            return false;
+          }
+          if(!this.seriesCoursesForm.price){
+            this.$Message.error("课程价格不能为空");
+            return false;
+          }
+//          if(this.seriesCoursesForm.price >= 1){
+//            this.$Message.error("课程价格不能低于1元");
+//            return false;
+//          }
+          if(!this.seriesCoursesForm.chargePattern){
+            this.$Message.error("收费类型不能为空");
+            return false;
+          }
+
+          this.service.personalSeriesSubmit(this.seriesCoursesForm.seriesCourseName, this.seriesCoursesForm.startTimeStr, this.seriesCoursesForm.classify, this.photo, this.ext, this.seriesCoursesForm.price, this.seriesCoursesForm.chargePattern, this.seriesCoursesForm.profiles, this.seriesCoursesForm.seriesCourseType,this.headteacher).then(result => {
+            if(result.code === 0){
+              this.$Message.success( '恭喜你创建成功!');
+              setTimeout(function () {
+                window.location.reload();
+              },1000);
+            }
+          }).catch(error => {
+            this.$Message.error({
+              content: error,
+              duration: 5
+            });
+          })
+        }else{
+          this.$Message.error({
+            content: '请先绑定云联惠授权！ ',
+            duration: 5
+          });
+        }
+      },
+    }
+  };
+</script>
+
+<style lang="less">
+  .creatingCourses {
+    width: 945px;
+    height: auto;
+    border: 1px #ededed solid;
+    padding-bottom: 40px;
+    .title {
+      width:auto;
+      height: 50px;
+      line-height: 50px;
+      font-size: 16px;
+      color: #3e3e3e;
+      border-bottom: 1px #ededed solid;
+      .tit {
+        padding: 15px;
+        border-bottom: 2px #ff8a0c solid;
+      }
+    }
+    .content {
+      border: 0px #ccc solid;
+      width: auto;
+      margin: 45px 45px 0 45px;
+      .ivu-input-wrapper,.ivu-select {
+        width: 251px;
+      }
+      .padd-top {
+        .ivu-form-item-label {
+          padding: 9px 12px 11px 0 !important;
+          font-size: 14px;
+        }
+      }
+      .ivu-btn {
+        padding: 6px 28px;
+        font-size: 14px;
+      }
+    }
+    /* input select */
+    .ivu-input,.ivu-select-single .ivu-select-selection {
+      height: 36px !important;
+    }
+    .ivu-select-single .ivu-select-selection .ivu-select-placeholder, .ivu-select-single .ivu-select-selection .ivu-select-selected-value {
+      height: 36px !important;
+      line-height: 36px !important;
+    }
+  }
+  .ivu-modal-content,.ivu-modal-body{
+    height: inherit !important;;
+  }
+  .ivu-form-item-content{
+    z-index: 1;
+  }
+  .ivu-modal-footer{
+    position: absolute;
+    top: 0;
+    right: 190px;
+    z-index: 1000;
+    border: none;
+  }
+</style>

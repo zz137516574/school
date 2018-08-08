@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>直播</title>
+  <link rel="stylesheet" href="static/jquery.mCustomScrollbar.min.css" />
+  <style>
+    .applyDiv {
+      width: 400px;
+      height: 200px;
+      margin: 0px auto;
+      margin-top: 100px;
+      padding: 30px 25px;
+      box-sizing: border-box;
+      background: #f3f5f7;
+      border: 2px #ff982a solid;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .applyDivTop{
+      width: 100%;
+      margin-top: 40px;
+    }
+    i{
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50px;
+      height: 50px;
+      background-image: url(static/image/tishi-del.png);
+      background-repeat: no-repeat;
+      background-size: 100%;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+    .applyDiv button{
+      width: 120px;
+      height: 38px;
+      border-radius: 5px;
+      background: #ff8a0c;
+      color: #ffffff;
+      font-size: 14px;
+      border: none;
+      outline: none;
+      cursor:pointer;
+      margin: 0px 10px;
+    }
+  </style>
+</head>
+<body class="page-pc">
+<div class="layer" id="userCusEvent">
+  <div class="applyDiv clearfix">
+    <div class="applyDivTop clearfix">
+      <button  class="startLiving">发起直播</button>
+      <button  class="returnPage">返回上一页</button>
+    </div>
+  </div>
+</div>
+
+<script>development="dev"</script>
+
+<script src="static/jquery-1.9.1.min.js"></script>
+<script src="static/jquery.mCustomScrollbar.concat.min.js"></script>
+<script src="static/vhallSDK.js"></script>
+<script src="static/underscore-min.js"></script>
+<script src="static/md5.js"></script>
+<script src="static/sign.js"></script>
+<script>
+  $(document).ready(function() {
+//	function t(t) {
+//		var o = new RegExp("(^|&)" + t + "=([^&]*)(&|$)", "i"),
+//		e = window.location.search.substr(1).match(o);
+//		return null != e ? unescape(e[2]) : ""
+//	} (function() {
+//	    for (var t = navigator.userAgent, o = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"], e = !0, n = 0; n < o.length; n++) if (t.indexOf(o[n]) > 0) {
+//	        e = !1;
+//	        break
+//	    }
+//	    return e
+//	})() && $("body").addClass("page-pc"),
+    console.log(location.href);
+    let params = location.href.split("?")[1].split("&");
+    console.log(params);
+    let timestamp = Date.parse(new Date());
+    let roomID = params[2].split("=")[1];
+    let  username =  params[3].split("=")[1];
+    let account = params[4].split("=")[1];
+    let  userID = params[5].split("=")[1];
+    let password = params[6].split("=")[1];
+    let  email =  'test@test.com';
+
+    console.log(timestamp+'时间戳');
+    console.log(roomID+'房间ID');
+    console.log(username+'用户名字');
+    console.log(userID+'用户ID');
+    console.log(password +'用户密码');
+    console.log(email);
+
+//    $('button').click(function () {
+////                window.location.href='https://e.vhall.com/webinar/host/167205018'
+////            window.location.href='http://e.vhall.com/api/vhallapi/v2/webinar/start?webinar_id='+167205018+'&'+'auth_type='+2;
+//      $.ajax({
+//        url:"http://e.vhall.com/api/vhallapi/v2/webinar/start",
+//        type:'POST', //GET
+//        async:true,    //或false,是否异步
+//        data:{
+//          webinar_id:roomID,auth_type:1,
+//          account: 'v23426451',password:'zhjh4688474',user_id:userID
+//        },
+//        dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+//        success:function(data){
+//          if(data.code === "200"){
+//            console.log(data.data);
+//            window.location.href = data.data;
+//          }
+//          console.log(data);
+//        },
+//        error:function(xhr,textStatus){
+//          console.log('错误')
+//          console.log(xhr)
+//          console.log(textStatus)
+//        },
+//      })
+//    });
+//                window.location.href='https://e.vhall.com/webinar/host/167205018'
+      $('.startLiving').click(function () {
+        startLiving();
+      })
+      $(".returnPage").click(function () {
+        window.history.go(-1);
+      })
+      function startLiving() {
+        $.ajax({
+          url:"http://e.vhall.com/api/vhallapi/v2/webinar/start",
+          type:'POST', //GET
+          async:true,    //或false,是否异步
+          data:{
+            webinar_id:roomID,auth_type:1,
+            account: 'v23426451',password:'zhjh4688474',user_id:userID
+          },
+          dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+          success:function(data){
+            if(data.code === "200"){
+              console.log(data.data);
+              window.location.href = data.data;
+            }
+            alert(data.msg);
+          },
+          error:function(xhr,textStatus){
+            console.log('错误')
+            console.log(xhr)
+            console.log(textStatus)
+          },
+        })
+      }
+//            window.location.href='http://e.vhall.com/api/vhallapi/v2/webinar/start?webinar_id='+167205018+'&'+'auth_type='+2;
+  })
+  var timestamp = Date.parse(new Date());
+  //    初始化
+  //初始化
+  VHALL_SDK.init({
+    app_key: app_key,
+    signedat: timestamp,
+    email: 'test@test.com',
+    roomid: roomID,
+    account: userID,
+    username: username,
+    sign: sign(roomID, userID, email, username, timestamp),
+    facedom: "#face",
+    textdom: "#mywords",
+    videoContent: "#video",
+    docContent: "#doc"
+  });
+
+  //var o = _.template($("#chat-template").html()),
+  //e = _.template($("#question-template").html());
+  //接收到用户自定义广播消息后触发事件
+  VHALL_SDK.on("customEvent", function(t) {
+    alert(JSON.stringify(t))
+  }),
+//直播收到聊天消息
+    VHALL_SDK.on("chatMsg", function(t) {
+      $("#chatmsg").append(o(t)),
+        $(".chatmsg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "99999")
+    }),
+//直播问答消息
+    VHALL_SDK.on("questionMsg", function(t) {
+      console.log("问答", t),
+        $("#question-msg").append(e(t)),
+        $(".question-msg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "99999")
+    }),
+//SDK准备就绪后触发事件，全局事件
+    VHALL_SDK.on("ready", function() {
+      VHALL_SDK.vhall_get_history_notice(),
+        1 == VHALL_SDK.getRoominfo().type ? (VHALL_SDK.vhall_get_live_history_chat_msg(), 1 == VHALL_SDK.getRoominfo().openQuestion && VHALL_SDK        .vhall_get_live_history_question_msg()) : VHALL_SDK.vhall_get_record_history_chat_msg()
+    }),
+//SDK调用错误事件消息，全局事件
+    VHALL_SDK.on("error", function(t) {
+      alert("发生错误: " + JSON.stringify(t))
+    }),
+//    用户上线事件消息
+    VHALL_SDK.on("userOnline", function(t) {
+      console.log(t)
+    }),
+//    用户下线事件消息
+    VHALL_SDK.on("userOffline", function(t) {
+      console.log(t)
+    }),
+//    发送签到请求后触发事件
+    VHALL_SDK.on("sendSign", function(t) {
+      console.log(t)
+    }),
+//发送更新用户信息请求后触发事件
+    VHALL_SDK.on("UpdateUser", function(t) {
+      console.log(t)
+    }),
+    VHALL_SDK.on("sendCustomEvent",
+      function(t) {
+        console.log(t)
+      }),
+    VHALL_SDK.on("sendChat",
+      function(t) {
+        console.log(t)
+      }),
+    VHALL_SDK.on("sendChat",
+      function(t) {
+        console.log(t)
+      }),
+    VHALL_SDK.on("sendQuestion",
+      function(t) {
+        console.log(t)
+      }),
+    VHALL_SDK.on("disableChat",
+      function(t) {
+        console.log("禁言", t)
+      }),
+    VHALL_SDK.on("permitChat",
+      function(t) {
+        console.log("恢复禁言", t)
+      }),
+    VHALL_SDK.on("forbidChat",
+      function(t) {
+        console.log("全体禁言", t)
+      }),
+    VHALL_SDK.on("kickout",
+      function(t) {
+        console.log("踢出", t)
+      }),
+    VHALL_SDK.on("kickoutRestore",
+      function(t) {
+        console.log("恢复踢出", t)
+      }),
+//     [questionSwitch 直播问答开关消息]msg [msg.status 1：开启，0：关闭]
+    VHALL_SDK.on("questionSwitch", function(t) {
+      1 == t.status ? alert("问答已开启") : alert("问答已关闭")
+    }),
+
+    Date.prototype.Format = function(t) {
+      var o = {
+        "M+": this.getMonth() + 1,
+        "d+": this.getDate(),
+        "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12,
+        "H+": this.getHours(),
+        "m+": this.getMinutes(),
+        "s+": this.getSeconds(),
+        "q+": Math.floor((this.getMonth() + 3) / 3),
+        S: this.getMilliseconds()
+      };
+      /(y+)/.test(t) && (t = t.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length)));
+      for (var e in o) new RegExp("(" + e + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? o[e] : ("00" + o[e]).substr(("" + o[e]).length)));
+      return t
+    },
+//收到公告消息时候触发
+    VHALL_SDK.on("announcement", function(t) {
+      var o = "<li><div>" + t + "</div><span>" + (new Date).Format("yyyy-MM-dd HH:mm:ss") + "</span></li>";
+      $("#notice-msg>ul").append(o)
+    }),
+//拉取历史直播公告消息后触发事件
+    VHALL_SDK.on("vhall_history_notice", function(t) {
+      if ("200" == t.code) {
+        var o = "";
+        $.each(t.data.data,
+          function(t, e) {
+            o = "<li><div>" + JSON.parse(e.content).content + "</div><span>" + e.created_at + "</span></li>" + o
+          }),
+          $("#notice-msg>ul").html(o)
+      } else console.log(t.msg)
+    }),
+//接收到签到消息后触发事件
+    VHALL_SDK.on("startSign", function(t) {function o() {
+      setTimeout(function() {
+          e.text(--n + "秒"),
+            0 != n && $(".sign").hasClass("active") ? o() : ($(".sign").removeClass("active"), e.text("0秒"), e = null)
+        },
+        1e3)
+    }
+//获取时间
+      var e = $(".sign .sign-second"),
+        n = t.sign_show_time;
+      e.text(n + "秒"),
+        $(".sign").data("signID", t.sign_id).addClass("active"),
+        $(".sign-btn").click(function() {
+          $(".sign").removeClass("active"),
+            VHALL_SDK.sendSign($(".sign").data("signID"))
+        }),
+        o()
+    }),
+//直播活动结束，全局事件
+    VHALL_SDK.on("streamOver", function(t) {
+      alert("活动已结束")
+    }),
+//    活动开始推流，全局事件
+    VHALL_SDK.on("publishStart", function(t) {
+      alert("活动开始推流")
+    }),
+//拉取直播历史消息后触发事件
+    VHALL_SDK.on("vhall_live_history_chat_msg", function(t) {
+      if (200 == t.code) {
+        for (var e = "",n = t.data.length - 1; n >= 0; n--)
+          e += o(t.data[n]);
+        $("#chatmsg").append(e),
+          setTimeout(function() {
+              $(".chatmsg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "999999")
+            },
+            50)
+      }
+    }),
+    VHALL_SDK.on("vhall_record_history_chat_msg",
+      function(t) {
+        if (200 == t.code) {
+          var e = "";
+          $("#chatmsg").data("curr_page", t.curr_page);
+          for (var n = t.data.length - 1; n >= 0; n--) e += o(t.data[n]);
+          1 == t.curr_page ? ($("#chatmsg").html(e), setTimeout(function() {
+              $(".chatmsg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "999999")
+            },
+            50)) : ($("#chatmsg").prepend(e), $(".chartlist").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "20px"))
+        }
+      }),
+    VHALL_SDK.on("getQuestionList",
+      function(t) {
+        if (200 == t.code) {
+          for (var o = "",
+                 n = t.data.length - 1; n >= 0; n--) o += e(t.data[n]);
+          $("#question-msg").append(o),
+            setTimeout(function() {
+                $(".chatmsg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "999999")
+              },
+              50)
+        }
+      }),
+    $(".chatmsg-box").mCustomScrollbar({
+      scrollInertia: 200,
+      callbacks: {
+        onTotalScrollBack: function() {
+          if ("1" != VHALL_SDK.room.type) {
+            var t = parseInt($("#chatmsg").data("curr_page"));
+            VHALL_SDK.vhall_get_record_history_chat_msg(t + 1)
+          }
+        }
+      }
+    }),
+    $("#sendChat").click(function() {
+      var t = $("#mywords").val(),
+        n = null;
+      $(".tab-pane.active").hasClass("chatmsg-box") ? ((n = VHALL_SDK.sendChat({
+        text: t
+      })) && $("#chatmsg").append(o(n)), $("#mywords").val(""), $(".chatmsg-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "999999")) : ((n = VHALL_SDK.sendQuestion({
+        text: t
+      })) && $("#question-msg").append(e(n)), $("#mywords").val(""), $(".question-box").mCustomScrollbar("update").mCustomScrollbar("scrollTo", "999999"))
+    }),
+    VHALL_SDK.on("playerError",
+      function(t) {
+        console.log(t)
+      }),
+    VHALL_SDK.on("playerReady",function() {
+      VHALL_SDK.player.on("canPlayLines",function(t) {
+        var o = "";
+        t.forEach(function(t) {
+          o += "<li>" + t + "</li>"
+        }),
+          $("#lines").html(o).find("li").eq(0).addClass("active")
+      }),
+        VHALL_SDK.player.on("canPlayDefinitions",function(t) {
+          var o = "";
+          t.forEach(function(t) {
+            o += "<li>" + t + "</li>"
+          }),
+            $("#definitions").html(o).find("li").eq(0).addClass("active")
+        })
+    }),
+    $(".sign-header>img").click(function(t) {
+      t.stopPropagation(),
+        $(".sign").removeClass("active"),
+        $(".sign .sign-second").text("0秒")
+    }),
+    $(".help-tool").click(function(t) {
+      $("#userEvent").toggleClass("active"),
+        setTimeout(function() {
+            $("#userData").toggleClass("active")
+          },
+          100),
+        setTimeout(function() {
+            $("#exchange").toggleClass("active")
+          },
+          200),
+        setTimeout(function() {
+            $("#hideVideo").toggleClass("active")
+          },
+          300)
+    });
+</script>
+</body>
+</html>

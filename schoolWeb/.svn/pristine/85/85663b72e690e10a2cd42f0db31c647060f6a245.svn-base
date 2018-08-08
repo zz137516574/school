@@ -1,0 +1,125 @@
+<template>
+  <div>
+    <div class="clearfix lecturerItem">
+      <ul class="clearfix lecturerItemUl">
+        <li v-for="(item,index) in lecturerItem" :key="index" @click="lecRecruitmentDetails(item.id)">
+          <a class="lecturer">
+            <div class="header" v-if="item.hasOwnProperty('recruitTitle')">{{item.recruitTitle}}</div>
+            <div class="main">
+              <p class="name" v-if="item.hasOwnProperty('schoolName')">{{item.schoolname}}</p>
+              <p class="num" v-if="item.hasOwnProperty('recruitMemberNumber')">招聘人数：{{item.recruitMemberNumber}}人</p>
+              <p class="info" v-if="item.hasOwnProperty('recruitRequirement')">简介：{{item.recruitRequirement}}</p>
+              <p class="btn"><button>立即加入</button></p>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+    export default {
+        props: {
+          lecturerItem: {
+               required: true
+            }
+        },
+        data() {
+            return {
+
+            };
+        },
+        mounted() {
+
+        },
+        beforeDestroy() {
+
+        },
+        methods: {
+            lecRecruitmentDetails(lecId){
+                this.$emit('refre',lecId);
+            }
+        }
+    };
+</script>
+
+<style  lang="less">
+    .lecturerItem{
+      padding-bottom:50px;
+      .lecturerItemUl{
+        li{
+          margin-top: 30px;
+          float: left;
+          margin-right: 33px;
+          a{
+            transition: all .4s ease;
+          }
+        }
+        li:hover{
+          transform: translateY(-8px);
+          -webkit-transform: translateY(-8px);
+          -moz-transform: translateY(-8px);
+          box-shadow: 0 5px 20px 5px #e0e0e0;
+          -webkit-box-shadow: 0 5px 20px 5px #e0e0e0;
+          -moz-box-shadow: 0 5px 20px 5px #e0e0e0;
+          transition: all .4s ease;
+          .btn button{
+            background: #ff8a0c;
+          }
+        }
+        li:nth-child(4n){
+          margin-right: 0;
+        }
+      }
+    }
+    a.lecturer{
+        display: block;
+        width: 275px;
+        height:295px;
+        border: 1px solid #ededed;
+        box-sizing: border-box;
+        overflow: hidden;
+        .header{
+            height: 80px;
+            line-height: 80px;
+            background: #f0a232;
+            color: #ffffff;
+            font-size: 26px;
+            text-align: center;
+        }
+        .main{
+            padding: 20px 30px;
+            color: #828181;
+            font-size: 16px;
+            .name,.num{
+                font-size: 20px;
+                color: #535353;
+                margin-bottom: 10px;
+              overflow: hidden;
+            }
+            .btn{
+                padding-left: 0;
+                text-align: center;
+                button{
+                    cursor: pointer;
+                    margin-top: 25px;
+                    width: 100px;
+                    height: 34px;
+                    line-height: 34px;
+                    font-size: 14px;
+                    color: #ffffff;
+                    background: #fca445;
+                    border: none;
+                    outline: none;
+                    border-radius: 5px;
+                    text-align: center;
+                }
+            }
+            .info{
+              height: 44px;
+              overflow: hidden;
+            }
+        }
+    }
+</style>

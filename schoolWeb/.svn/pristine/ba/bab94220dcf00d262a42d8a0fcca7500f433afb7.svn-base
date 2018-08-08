@@ -1,0 +1,691 @@
+<template>
+    <div id="enrollDetails">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu"></v-subpageMenu>
+
+        <!--面包屑-->
+        <!--<Breadcrumb separator=">" class="container m-b-20 m-t-20">-->
+            <!--<BreadcrumbItem href="/">首页</BreadcrumbItem>-->
+            <!--<BreadcrumbItem href="enrollList">报名吧列表</BreadcrumbItem>-->
+            <!--<BreadcrumbItem href="#">云联惠总部商学院第71期初级班</BreadcrumbItem>-->
+        <!--</Breadcrumb>-->
+        <div style="padding: 10px 0;margin-top: 10px">
+          <breadcrumb></breadcrumb>
+        </div>
+
+
+        <!--活动内容头部-->
+        <div class="contentHead container clearfix">
+            <i class="ibanner f-fl">
+              <img :src="enrollData.activityPhoto" alt="">
+              <!--<div class="ibannerMask">-->
+                <!--<div class="maskText">-->
+                  <!--<p>本期活动已结束</p>-->
+                  <!--<p>敬请期待下期</p>-->
+                <!--</div>-->
+              <!--</div>-->
+            </i>
+            <div class="f-fl rightBlock">
+                <div class="enrollName">{{enrollData.activityTitle}}</div>
+                <div class="clearfix m-b-20">
+                    <p class="f-fl">承办方：{{enrollData.schoolName}}</p>
+                    <p class="f-fr">已报名
+                      <span class="num" v-if="enrollData.userNum == null ">0</span>
+                      <span class="num" v-if="enrollData.userNum !=''">{{enrollData.userNum}}</span>
+                      /
+                      <span style="padding-left: 4px;" v-if="enrollData.psersonNum == null ">0</span>
+                      <span style="padding-left: 4px;" v-if="enrollData.psersonNum !='' ">{{enrollData.psersonNum}}</span>
+                    </p>
+                </div>
+                <i class="hr"></i>
+                <div class="clearfix">
+                  <div class="f-fl">
+                    <div class="address m-b-20">地点：{{enrollData.activityPlace}}</div>
+                    <div class="time m-b-20">时间：{{enrollData.activityAddtime}} ~ {{enrollData.activityEndTime}}</div>
+                  </div>
+                  <div class="f-fr" style="width: 80px;height: 70px;" v-show="!liveBtn">
+                    <img src="../assets/image/yinzhang.png" alt="" style="width: 100%;height: 100%;">
+                  </div>
+                </div>
+                <div class="ticket m-b-20">
+                    <p class="title_txt f-fl m-t-10 p-r-10">价格：</p>
+                    <div class="ticketDiv">
+                        <span class="type" v-if="activityPrice != 0 " style="color: #ff8a0c;">￥{{enrollData.activityPrice | currency}}</span>
+                        <span class="type" v-if="activityPrice == 0 "  style="color: #ff8a0c;">免费</span>
+                    </div>
+                </div>
+                <div class="btn">
+                  <div style="display: inline-block" v-show="freeBtn">
+                    <button @click="signUp" v-show="liveBtn">我要报名</button>
+                    <button v-show="!liveBtn" style="background: #b0b0b0">已报名</button>
+                  </div>
+                  <div style="display:inline-block;" v-show="!freeBtn">
+                    <button @click="freeActivity">免费活动</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <!--内容区域-->
+        <div class="classbody container clearfix">
+            <Tabs value="name1" class="lftblock"  style="float: left!important;">
+                <TabPane label="活动详情" name="name1">
+                    <div class="introduce" v-html="exchange(enrollData.activityIntroduce)"></div>
+                </TabPane>
+                <TabPane label="已报名" name="name2">
+                    <div class="entry">
+                        <ul class="clearfix entryUl">
+                            <li class="entryli" v-for="(item,index) in personData" :key="index">
+                                <i><img :src="item.head" alt="" v-if="item.hasOwnProperty('head')"></i>
+                                <p>{{item.nikename}}</p>
+                                <p>{{item.sginTime}}</p>
+                            </li>
+                        </ul>
+                        <div class="entry_more"  @click="entrymore" v-show="showBlock">
+                            <a class="moreBtn font03">展开更多报名 <i class="ivu-icon ivu-icon-chevron-down"></i></a>
+                        </div>
+                    </div>
+                </TabPane>
+            </Tabs>
+            <div class="rgtblock" style="float: left!important;margin-left: 18px;">
+                <i><img :src="schoolData.photo" alt=""></i>
+                <p class="name">{{schoolData.schoolName}}</p>
+                <ul class="clearfix">
+                    <li>
+                        <p v-if="schoolData.activityNum === null ">0</p>
+                        <p v-if="schoolData.activityNum != '' ">{{schoolData.activityNum}}</p>
+                        <p>举办活动</p>
+                    </li>
+                    <li>
+                        <p v-if="schoolData.purchaseNum === null ">0</p>
+                        <p v-if="schoolData.purchaseNum != '' ">{{schoolData.purchaseNum}}</p>
+                        <p>参与人数</p>
+                    </li>
+                </ul>
+                <p style="height: 150px;overflow: hidden;" v-html="exchange(schoolData.profiles)"></p>
+            </div>
+        </div>
+      <!--弹框-->
+      <div class="container clearfix" v-if='hiddenApplyPosition'>
+        <div class="applyDiv clearfix">
+          <i @click='applyPositionSure'></i>
+          <div class="applyDivTop clearfix">
+            免费活动，无需报名！
+          </div>
+        </div>
+      </div>
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import footer from '../components/footer.vue';
+
+    export default {
+        data() {
+            return {
+              top: {},
+              search: {},
+              subpageMenu:{},
+              footer: {},
+              value2: 0,
+              model1: '',
+              msg: '',
+              userId: 0,
+              userInfo:'',
+              activityId: 0,
+              activityPrice: 0,
+              enrollData: {},
+              newsCont:'',
+              schoolId:0,
+              schoolData: '',
+              personData: '',
+              page: 1,
+              limit:5,
+              num:1,
+              showBlock: false,
+              purchaseNum:1,
+              isPurchase:'',
+              liveBtn:true,
+              activityPriceOpen:'',
+              freeBtn:true,
+              hiddenApplyPosition:false,
+              memberId: ''
+            };
+        },
+        mounted() {
+
+          if(window.localStorage.msg)
+          {
+            this.msg = JSON.parse(window.localStorage.msg);
+          }
+          // 获取用户信息
+          if(window.localStorage.userInfo)
+          {
+            this.userInfo = JSON.parse(window.localStorage.userInfo);
+            this.userId = JSON.parse(window.localStorage.userInfo).userId;
+          }
+          // 获取用户绑定后的信息
+          if(window.localStorage.memberInfo){
+            this.memberInfo = JSON.parse(window.localStorage.memberInfo);
+            this.memberId = JSON.parse(window.localStorage.memberInfo).memberId;
+          }
+
+          this.activityId  = this.$route.query.activityId;
+          this.activityPrice  = this.$route.query.activityPrice;
+          this.enrollDetails();
+          this.enrollPersonDetails();
+        },
+        filters:{      //数据过滤器
+          currency:function(x){
+            try {
+              let f_x1 = parseFloat(x);
+              if (isNaN(f_x1)) {
+                return x;
+              }
+              let f_x = Math.round(x * 100) / 100;
+              let s_x = f_x.toString();
+              let pos_decimal = s_x.indexOf('.');
+              if (pos_decimal < 0) {
+                pos_decimal = s_x.length;
+                s_x += '.';
+              }
+              while (s_x.length <= pos_decimal + 1) {
+                s_x += '0';
+              }
+              return s_x;
+            } catch (e) {
+              return '0.00';
+            }
+          }
+        },
+        components: {
+          'v-top': top,
+          'v-search': search,
+          'breadcrumb':breadcrumb,
+          'v-subpageMenu': subpageMenu,
+          'v-footer': footer,
+        },
+        methods: {
+          // 活动详情
+          enrollDetails() {
+            this.service.OfflineActivityDetails(this.activityId,this.userId).then(result => {
+              if(result){
+                this.enrollData = result.activityEntity;
+                this.schoolId = result.activityEntity.schoolId;
+                this.enrollSchoolDetails(this.schoolId);
+                this.isPurchase=result.activityEntity.isPurchase;
+                this.activityPriceOpen = result.activityEntity.activityPriceOpen;
+                if(this.isPurchase > 0){
+                  this.liveBtn = false;
+                }else{
+                  this.liveBtn = true;
+                }
+                if(this.activityPrice == 0){
+                  this.freeBtn = false;
+                }else {
+                  this.freeBtn = true;
+                }
+              }
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          signUp(){
+            if(this.msg === '登陆成功！'){
+              if(window.localStorage.memberInfo != null && window.localStorage.memberInfo != undefined){
+                if(this.activityPrice != 0  && this.isPurchase == 0){
+                  this.$router.push({ path: 'orderPurchase', query: {activityId: this.activityId,purchaseNum: this.purchaseNum,userId: this.userId}});
+                }
+              }else{
+                this.$Message.error({
+                  content: '请先绑定云联惠授权！ ',
+                  duration: 5
+                });
+              }
+            }else{
+              this.$Message.error({
+                content: '请登录成功后进行操作! ',
+                duration: 2
+              });
+              this.$router.push({path: 'login'});
+            }
+          },
+          // 分校信息
+          enrollSchoolDetails(itemID) {
+            this.schoolId=itemID;
+            this.service.OfflineSchoolDetails(this.schoolId).then(result => {
+              if(!this.schoolData){
+                this.schoolData = '';
+              }else{
+                this.schoolData = result.schoolEntity;
+              }
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          // 加载更多
+          entrymore(){
+            this.num++;
+            this.limit = this.num*5;
+            this.enrollPersonDetails();
+          },
+          // 报名人信息
+          enrollPersonDetails() {
+            this.service.OfflinePersonDetails(this.page,this.limit,this.activityId).then(result => {
+              this.personData = result.page.list;
+              if(this.personData.length !== 0){
+                if(this.personData.length % 5 === 0){
+                  this.showBlock = true;
+                }else{
+                  this.showBlock = false;
+                }
+              }else{
+                this.showBlock = false;
+              }
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          // 解析字符
+          exchange (str) {
+            let bbq = str;
+
+            if(bbq!=undefined){
+              bbq = bbq.replace(/&lt;/g, '<');
+              bbq = bbq.replace(/&gt;/g, '>');
+              bbq = bbq.replace(/&nbsp;/g,'  ');
+              bbq = bbq.replace(/&amp;/g,'&');
+              bbq = bbq.replace(/&quot;/g,'"');
+
+              bbq=bbq.replace("</*[^<>]*>", '');
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("::", ':');
+              bbq=bbq.replace(" ", '');
+              bbq=bbq.replace("<>", '');
+              bbq=bbq.replace("</>", '');
+              return bbq;
+            }
+          },
+          freeActivity(){
+            this.hiddenApplyPosition = true;
+          },
+          applyPositionSure(){
+            this.hiddenApplyPosition = false;
+          }
+        }
+    };
+
+</script>
+
+<style lang="less">
+    /*活动内容头部*/
+    .contentHead{
+        margin-top: 10px;
+        padding: 20px;
+        width: 1200px;
+        height: 355px;
+        box-sizing: border-box;
+        border: 1px solid #ebebeb;
+        /*幻灯片*/
+        .ibanner{
+            margin-right: 20px;
+            display: block;
+            width: 605px;
+            height: 317px;
+            overflow: hidden;
+            background-image: url('../assets/image/imgbg.jpg');
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            position: relative;
+            img{
+                height: 100%;
+                width: 100%;
+            }
+            .ibannerMask{
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              background: rgba(0,0,0,0.7);
+              top: 0px;
+              left: 0px;
+              color: #fff;
+              text-align: center;
+              .maskText{
+                width: 100%;
+                margin-top: 110px;
+                p:nth-child(1){
+                  font-size: 20px;
+                  padding: 8px 0;
+                }
+                p:nth-child(2){
+                  font-size: 15px;
+                }
+              }
+            }
+        }
+        /*右侧内容*/
+        .rightBlock{
+            width: 530px;
+            font-size: 14px;
+            color: #666666;
+            .enrollName{
+                margin-top: 15px;
+                margin-bottom: 20px;
+                font-size: 24px;
+                color: #333333;
+            }
+            span.num{
+                padding: 0 2px;
+                color: #ff8a0c;
+            }
+            i.hr{
+                margin-bottom: 20px;
+                display: block;
+                width: 100%;
+                height: 1px;
+                border-top: 1px dotted #dbdbdb;
+            }
+            .ticketDiv{
+                position: relative;
+                width: 155px;
+                height: 40px;
+                line-height: 40px;
+                border: 1px solid #ff8a0c;
+                background: url("../assets/image/icon_selected.png")no-repeat right bottom;
+                font-size: 14px;
+                color: #333333;
+                cursor: pointer;
+                overflow: hidden;
+                text-align: center;
+                span.type{
+                    padding-right: 5px;
+                    color: #ff8a0c;
+                }
+            }
+            .ticketNum{
+                margin-bottom: 20px;
+                .ivu-btn{
+                    padding: 3px 7px;
+                    line-height: 0;
+                    font-size: 14px;
+                    border-radius: initial;
+                }
+                .ivu-input-type{
+                    margin: 0 3px;
+                    width: 56px!important;
+                    height: 30px!important;
+                    box-sizing: border-box;
+                    .ivu-input{
+                        box-sizing: border-box;
+                        height: 30px!important;
+                        border-radius: inherit;
+                    }
+                }
+            }
+            .btn{
+                padding-left: 0;
+                button{
+                    width: 197px;
+                    height: 40px;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    color: #ffffff;
+                    background: #ff8a0c;
+                    border: none;
+                    outline: none;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    /*内容区域*/
+    .classbody{
+        padding-top: 30px;
+        padding-bottom: 30px;
+        background: #ffffff;
+        .lftblock{
+            width: 823px;
+            background: #ffffff;
+            height: inherit;
+            .ivu-tabs-ink-bar{
+                background-color: #ff8a0c;
+            }
+            .ivu-tabs-nav .ivu-tabs-tab{
+                width: 186px;
+                font-size: 18px;
+                color: #3c3c3c;
+                text-align: center;
+            }
+            .ivu-tabs-nav .ivu-tabs-tab-active,.ivu-tabs-nav .ivu-tabs-tab:hover{
+                color: #ff8a0c;
+            }
+            .ivu-tabs-tabpane{
+                border: 1px solid #ededed;
+                box-sizing: border-box;
+                border-top: 0;
+            }
+            /*简介*/
+            .introduce{
+                padding: 20px;
+                font-size: 16px;
+            }
+            /*已报名*/
+            .entry{
+                padding: 20px;
+                ul.entryUl{
+                    min-height: 135px;
+                    overflow: hidden;
+                }
+                li{
+                    float: left;
+                    margin-right: 55px;
+                    margin-bottom: 25px;
+                    font-size:12px;
+                    color: #666666;
+                    text-align: center;
+                    i{
+                        margin: 0 auto;
+                        display: block;
+                        width: 80px;
+                        height: 80px;
+                        overflow: hidden;
+                        border-radius: 50%;
+                        background-image: url('../assets/image/yun-com-qun1.png');
+                        background-repeat: no-repeat;
+                        background-size: 100% 100%;
+                        img{
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    p{
+                        margin-top: 5px;
+                    }
+                }
+                li:nth-child(5n){
+                    margin-right: 0;
+                }
+                .entry_more{
+                    margin-top: 50px;
+                    width: 778px;
+                    height: 45px;
+                    line-height: 45px;
+                    background: #bdbdbd;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    text-align: center;
+                    a{
+                        color: #ffffff;
+                    }
+                }
+            }
+            /*评论*/
+            .comment{
+                padding: 20px;
+                i{
+                    display: block;
+                    margin-right: 25px;
+                    width: 86px;
+                    height: 86px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    img{
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+                .commentRgt{
+                    .ivu-input-wrapper{
+                        margin-bottom: 20px;
+                        width: 670px!important;
+                        height: 130px;
+                        font-size:14px;
+                        color: #999999;
+                        textarea{
+                            width: 100%;
+                            height: 100% !important;
+                        }
+                    }
+                    i{
+                        margin-left: 200px;
+                        margin-right: 5px;
+                        font-size: 20px;
+                        color: #ff8a0c;
+                        width: inherit;
+                        height: inherit;
+                    }
+                    button{
+                        margin-top: -10px;
+                        width: 135px;
+                        height: 37px;
+                        line-height: 37px;
+                        background: #ff8a0c;
+                        border: none;
+                        border-radius: 5px;
+                        outline: none;
+                        color: #ffffff;
+                        font-size: 14px;
+                        text-align: center;
+                    }
+                }
+
+            }
+        }
+        /*右侧活动举办方*/
+        .rgtblock{
+            position: relative;
+            margin-top: 40px;
+            padding: 20px;
+            width: 359px;
+            height: 424px;
+            line-height: 20px;
+            background: #ededed;
+            font-size: 14px;
+            color: #333333;
+            i{
+                position: absolute;
+                left:50%;
+                right: 50%;
+                top:-40px;
+                margin-left: -63px;
+                padding: 5px;
+                width: 126px;
+                height: 126px;
+                border-radius: 50%;
+                background-color: #ffffff;
+                overflow: hidden;
+                box-shadow: 0 5px 8px #999999;
+                background-image: url('../assets/image/imgbg.jpg');
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                img{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                }
+            }
+            p{
+                line-height: 24px;
+            }
+            p.name{
+                margin-top: 100px;
+                text-align: center;
+            }
+            ul{
+                padding: 20px 52px 0;
+                margin-bottom: 30px;
+                li{
+                    float: left;
+                    padding: 0 20px;
+                    width: 107px;
+                    height: 48px;
+                    box-sizing: border-box;
+                    border-right: 1px solid #999999;
+                    p{
+                        text-align: center;
+                        margin-bottom: 5px;
+                    }
+                }
+                li:last-child{
+                    border-right: none;
+                }
+            }
+        }
+    }
+    .applyDiv{
+      width: 400px;
+      height: 230px;
+      padding: 30px 25px;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      background: #f3f5f7;
+      border: 2px #ff982a solid;
+      position: absolute;
+      left: 50%;
+      right: 50%;
+      top: 40%;
+      margin-left: -200px;
+      .applyDivTop{
+        height: 110px;
+        width: 100%;
+        margin-top: 60px;
+        text-align: center;
+        font-size: 24px;
+      }
+      i{
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50px;
+        height: 50px;
+        background-image: url(../assets/image/tishi-del.png);
+        background-repeat: no-repeat;
+        background-size: 100%;
+        border: none;
+        outline: none;
+        cursor: pointer;
+      }
+    }
+</style>

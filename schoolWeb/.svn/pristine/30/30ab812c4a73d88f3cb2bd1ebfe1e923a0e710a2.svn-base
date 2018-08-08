@@ -1,0 +1,427 @@
+<template>
+    <div id="lenturers">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu"></v-subpageMenu>
+        <div style="display: none">
+          <breadcrumb></breadcrumb>
+        </div>
+        <!--banner-->
+        <div class="clearfix lecInfo">
+          <div class="clearfix container">
+            <div class="lecInfoHeader f-fl">
+              <img :src="lecColInfo.head"/>
+            </div>
+            <div class="f-fl m-l-25 m-t-20">
+              <p><span class="lecInfoName m-r-25">{{lecColInfo.nikename}}</span></p>
+              <p class="lecInfoSome m-t-30">{{lecColInfo.codevalue}}</p>
+              <p class="lecInfoSome m-t-10">Tel：{{lecColInfo.mobile}}</p>
+            </div>
+            <div class="lecInfoWord f-fr text-left">
+              <p>{{lecColInfo.sign}}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lecturersBody clearfix container m-t-20 m-b-20">
+            <Tabs value="name1" class="f-fl container" >
+                <TabPane label="个人简介" name="name1">
+                    <div class="lecturersIntroduce">
+                        <div class="clearfix">
+                            <Timeline style="margin-top:60px;margin-left:130px;float: left">
+                                <p class="time-title">专业经验</p>
+                                <TimelineItem>
+                                    <p class="time">{{lecColInfo.professionalExperience}}</p>
+                                </TimelineItem>
+                                <p class="time-title">教育背景</p>
+                                <TimelineItem>
+                                  <p class="time">{{lecColInfo.educationalBackground}}</p>
+                                </TimelineItem>
+                                <p class="time-title">工作经验</p>
+                                <TimelineItem>
+                                  <p class="time">{{lecColInfo.workExperience}}</p>
+                                </TimelineItem>
+                                <p class="time-title">专业职称</p>
+                                <TimelineItem>
+                                  <p class="time">{{lecColInfo.professionalTitle}}</p>
+                                </TimelineItem>
+                            </Timeline>
+                        </div>
+                    </div>
+                </TabPane>
+                <TabPane label="普通课" name="name2" class="lenturersGenCourse">
+                    <v-coursedivItem :courseData="coursedivItem" :courseStatusData="courseStatus" v-on:courseDetailsRefre="lecCourseDetails" v-on:coursePageRefer="lecExcellents"></v-coursedivItem>
+                </TabPane>
+                <TabPane label="系列课" name="name3" class="lenturersSerCourse">
+                  <v-commonSeriesDiv :seriesData="seriesCourseData" :courseStatusData="courseSeriesStatus" v-on:seriesRefre="seriesCourseDetails" v-on:pageRefer="seriesLessons"></v-commonSeriesDiv>
+                </TabPane>
+                <TabPane label="在学普通课" name="name4" class="lenturersGenCourse">
+                  <v-coursedivItem :courseData="startCoursedivItem" :courseStatusData="courseOnlineStatus" v-on:courseDetailsRefre="lecCourseDetails" v-on:coursePageRefer="startLecExcellents"></v-coursedivItem>
+                </TabPane>
+                <TabPane label="在学系列课" name="name5" class="lenturersSerCourse">
+                  <v-commonSeriesDiv :seriesData="startSerCourseData" :courseStatusData="courseSeriesOnlineStatus"  v-on:seriesRefre="seriesCourseDetails" v-on:pageRefer="startSeriesLessons"></v-commonSeriesDiv>
+                </TabPane>
+                <TabPane label="收藏课程" name="name6" class="lenturersGeningCourse">
+                  <v-courseItem :courseData="collegeItem" :courseStatusData="collegeItemStatus" v-on:refre="collegeDetails"></v-courseItem>
+                  <Page :total="pageNumber * 10" class="container text-center" style="padding: 50px 0 100px;" @on-change="newsPageChange"></Page>
+                </TabPane>
+            </Tabs>
+        </div>
+
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import coursedivItem from '../components/course/coursedivsItem.vue';
+    import commonSeriesDiv from '../components/index/commonSerieDiv.vue';
+//    import courseItem from '../components/course/coursesItem.vue';
+    import courseItem from '../components/myClassroom/class/commonsDivv.vue';
+    import footer from '../components/footer.vue';
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                assLecturersBanner:{},
+                coursedivItem:{},
+                commonSeriesDiv:{},
+                footer: {},
+                lecColInfo:{},
+                seriesCourseData:'',
+                startCoursedivItem:'',
+                startSerCourseData:'',
+                collegeItem:'',
+                itemData:1,
+                onorsome:0,
+                page: 1,
+                limit: 4,
+                userId:0,
+                createUser:1,
+                headteacher:0,
+                recordtypeStr:1,
+                pageNumber: 1,
+                auditStatus: 19, //课、课程审核通过
+                courseStatus:'',
+                courseOnlineStatus:'',
+                courseSeriesStatus:'',
+                courseSeriesOnlineStatus:'',
+                collegeItemStatus:''
+            }
+        },
+        mounted() {
+          this.userId = this.$route.query.lecturersId;
+          this.headteacher = this.userId;
+          if( this.userId ){
+            this.lecDetails();
+          }
+          this.createUser = this.userId;
+          this.lecExcellents(this.itemData);
+          this.seriesLessons(this.itemData);
+          this.startLecExcellents(this.itemData);
+          this.startSeriesLessons(this.itemData);
+          this.collegeAreas(this.itemData);
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-coursedivItem': coursedivItem,
+            'v-commonSeriesDiv': commonSeriesDiv,
+            'v-courseItem': courseItem,
+            'v-footer': footer
+        },
+        methods: {
+          //讲师个人简介
+          lecDetails() {
+            this.service.lecInfo(this.userId).then(result => {
+              this.lecColInfo = result.user;
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //  分页
+          newsPageChange(pageNum){
+            this.page = pageNum;
+            this.collegeAreas();
+          },
+          // 普通课
+          lecExcellents(pageNumber) {
+            this.page = pageNumber;
+            var _this = this;
+            this.service.lecExcellent(this.page,this.limit,this.createUser,this.auditStatus).then(result => {
+              this.coursedivItem = result.page;
+              this.coursedivItem.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.courseStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          // 普通课跳转详情页
+          lecCourseDetails(itemId) {
+            this.onorsome = 0;
+            if(this.onorsome === 0){  //普通课程
+              this.$router.push({ path: 'freeCourse', query: { onorsome:this.onorsome, courseId: itemId.courseId, price: itemId.price}});
+            }
+          },
+          //系列课
+          seriesLessons(pageNumber) {
+            this.page = pageNumber;
+            this.onorsome=1;
+            var _this = this;
+            this.service.courseSeriesDatas(this.page,this.limit, this.auditStatus,this.onorsome,this.headteacher).then(result => {
+              this.seriesCourseData = result.page;
+              this.seriesCourseData.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.courseSeriesStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          //系列课跳转详情页
+          seriesCourseDetails(itemId) {
+            this.onorsome = 1;
+            if(this.onorsome === 1){ //系列课程
+              this.$router.push({ path: 'freeSeriesCourse', query: { onorsome:this.onorsome, seriesCourseId: itemId.seriesCourseId, price: itemId.price}});
+            }
+          },
+          // 在学普通课
+          startLecExcellents(pageNumber) {
+            this.page = pageNumber;
+            this.onorsome = 0;
+            var _this=this;
+            this.service.startLecExcel(this.page,this.limit,this.onorsome,this.userId).then(result => {
+              this.startCoursedivItem = result.page;
+              this.startCoursedivItem.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.courseOnlineStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          // 在学系列课
+          startSeriesLessons(pageNumber) {
+            this.page = pageNumber;
+            this.onorsome = 1;
+            this.service.startLecExcel(this.page,this.limit,this.onorsome,this.userId).then(result => {
+                this.startSerCourseData = result.page;
+                this.startSerCourseData.forEach(function (item,index) {
+                  _this.service.courseTypeGroup(item.courseId).then(result => {
+                    _this.courseSeriesOnlineStatus.push(result.status);
+                  }).catch(error => {
+                    _this.$Loading.error();
+                  })
+                })
+            }).catch(error => {
+              this.$Loading.error();
+            })
+          },
+          // 收藏课程
+          collegeAreas() {
+            var _this = this;
+            this.service.collegeCourse(this.page,this.limit,this.userId,this.recordtypeStr).then(result => {
+              this.collegeItem = result.page.list;
+              this.pageNumber = result.page.totalPage;
+              this.collegeItem.forEach(function (item,index) {
+                _this.service.courseTypeGroup(item.courseId).then(result => {
+                  _this.collegeItemStatus.push(result.status);
+                }).catch(error => {
+                  _this.$Loading.error();
+                })
+              })
+            }).catch(error => {
+              this.$Message.error({
+                content: error,
+                duration: 5
+              });
+            })
+          },
+          collegeDetails(item) {
+              if(item.onorsome === 0){  //普通课程
+                this.onorsome = 0;
+                this.$router.push({ path: 'DirectCourseDetails', query: { onorsome:this.onorsome, courseId:item.recordId, price:item.price}});
+              }
+              if(item.onorsome === 1){ //系列课程
+                this.onorsome = 1;
+                this.$router.push({ path: 'DirectCourseDetailsSeries', query: { onorsome:this.onorsome, seriesCourseId:item.recordId, price:item.price}});
+              }
+          }
+        }
+    };
+
+</script>
+
+<style lang="less">
+    .lecInfo{
+      width:100% !important;
+      min-width: 1200px;
+      height: 244px !important;
+      background-image: url("../assets/image/yun-info-bk.jpg");
+      background-size: 100% 100%;
+      padding: 50px 10px;
+      .lecInfoHeader{
+        width: 144px !important;
+        height: 144px !important;
+        border:3px #ffffff solid;
+        border-radius: 50%;
+        overflow: hidden;
+        background-image: url('../assets/image/imgbg.jpg');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        img{
+          width:100%;
+          height:100%;
+        }
+      }
+      div{
+        p{
+          font-size: 14px;
+          color: #333333;
+          .lecInfoName{
+            font-size: 20px;
+            font-weight: 700;
+          }
+          .lecInfoSome{
+            color: #3e3e3e;
+            font-size: 16px;
+          }
+        }
+      }
+      .lecInfoWord{
+        width: 400px !important;
+        height: 144px !important;
+        background-color: #ffffff;
+        border-radius: 6px;
+        color: #505050;
+        font-size: 14px;
+        padding: 48px 74px;
+        overflow: hidden;
+      }
+    }
+    .lecturersBody{
+        padding-top: 30px;
+        padding-bottom: 30px;
+        background: #ffffff;
+        .ivu-tabs-nav {
+          width: 100%;
+          .ivu-tabs-tab {
+            width: 17%;
+            text-align: center;
+            font-size: 18px;
+            margin-right: 0 !important;
+          }
+          .ivu-tabs-tab:hover {
+            color: #ff8a0c;
+            border-bottom: 3px #ff8a0c solid;
+          }
+          .ivu-tabs-tab-active {
+            color: #ff8a0c;
+            border-bottom: 3px #ff8a0c solid;
+          }
+        }
+        .ivu-tabs-ink-bar{
+          display: none !important;
+        }
+        .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-nav-container {
+          height: 40px;
+        }
+        .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+          height: 39px;
+        }
+        .lecturersIntroduce{
+            .ivu-timeline{
+                .ivu-timeline-item{
+                    .ivu-timeline-item-tail{
+                        left: 7px;
+                        top: 12px;
+                        border-left: 2px solid #e3e8ee;
+                    }
+                    .ivu-timeline-item-head {
+                        width: 16px;
+                        height: 16px;
+                        background-color: #fff;
+                        border-radius: 50%;
+                        border: 2px solid transparent;
+                        position: absolute;
+                        margin-top: 6px;
+                    }
+                    .ivu-timeline-item-head-blue{
+                        border-color: #ff8a0c;
+                        color: #ff8a0c;
+                    }
+                    .ivu-timeline-item-content{
+                        padding-left:52px;
+                    }
+                }
+            }
+            .time-title{
+                float: left;
+                margin-left: -100px;
+                font-size: 20px;
+                color: #000;
+                font-weight: 600;
+            }
+            .time{
+                font-size: 16px;
+                color: #444;
+                padding-top: 3px;
+            }
+            .content{
+                padding-left: 5px;
+                padding-top: 10px;
+                color: #646464;
+                font-size: 14px;
+            }
+            /*输入框*/
+            .content1{
+                width: 800px;
+                background-color: #fdf7f5;
+                border:1px #cfcfcf solid;
+            }
+        }
+        .lenturersGenCourse,.lenturersSerCourse,.lenturersGeningCourse,.lenturersSeringCourse,.lenturersColCourse{
+            .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-nav-container {
+                height: 0 !important;
+            }
+            .ivu-tabs-nav{
+                height: 0 !important;
+            }
+            .ivu-tabs-bar{
+                border:none;
+            }
+            .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-tab{
+                height: 0 !important;
+                padding: 0;
+            }
+        }
+    }
+</style>

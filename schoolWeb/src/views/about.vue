@@ -1,0 +1,180 @@
+<template>
+    <div id="Roadshow">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="about"></v-subpageMenu>
+        <!--banner图片-->
+        <div class="bannerimg">
+            <img src="../assets/image/aboutBanner.jpg" alt=""  style="width: 100%;min-width: 1200px;max-height: 300px;">
+        </div>
+        <div class="aboutCard m-t-15 clearfix">
+            <div class="timeLi m-t-30 m-b-20" v-for="(item,index) in items"
+                :key="index"
+                v-bind:class="{'on':flag == index}"
+                v-on:click='light(index)'>
+                {{item.text}}
+            </div>
+        </div>
+        <!--关于我们内容切换-->
+        <div class="m-t-40">
+            <router-view></router-view>
+        </div>
+        <v-footer :footer="footer"></v-footer>
+
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import search from '../components/search.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import aboutLecturers from '../components/about/aboutLecturers.vue';
+    import footer from '../components/footer.vue';
+//    import aboutUs from '../components/about/aboutUs.vue';
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                aboutLecturers:{},
+                footer: {},
+                items:[
+                    { text: '关于我们' },
+                    { text: '关于讲师'},
+                    { text: '关于学校' }
+                ],
+                flag:0,
+//                aboutUs:{},
+            };
+        },
+        mounted() {
+
+        },
+
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'v-subpageMenu': subpageMenu,
+            'v-footer': footer,
+//            'v-aboutUs': aboutUs,
+
+        },
+        methods: {
+            roadShowList(){
+                this.$router.push('roadShowList');
+            },
+            light (index){
+                this.flag = index;
+                this.$router.replace('/' + index);
+            }
+        }
+    };
+
+</script>
+<style lang="less">
+    .createCell{
+        width: 100%;
+        .createRow{
+            display: inline-block;
+            width: 80px;
+            height: 35px;
+            line-height:35px;
+            text-align: center;
+            background-color: #fcad58;
+            border-radius: 5px;
+            color:white;
+            margin-right:15px;
+        }
+    }
+    .aboutCard{
+        width: 480px;
+        margin: 0px auto;
+        border: 0px solid #ebebeb !important;
+        .timeLi{
+            float: left;
+            width:150px;
+            list-style: none;
+            text-align: center;
+            height:42px;
+            line-height:42px;
+            display: inline-block !important;
+            vertical-align: middle;
+            border: 1px solid #ebebeb;
+            border-right: 0px !important;
+            font-size:15px;
+            cursor: pointer;
+        }
+        .timeLi:last-child {
+            border-right: 1px solid #ebebeb !important;
+        }
+        .on{
+            border: 1px #ff8a0c solid !important;
+            a {
+                color: white !important;
+            }
+        }
+        .about-tab {
+            width: 100%;
+            height: 35px;
+            display: inline-block;
+            color: #333333;
+        }
+        .router-link-exact-active {
+            color: white !important;
+        }
+
+    }
+    /*访谈列表*/
+    .enrollList{
+        li{
+            margin-top: 30px;
+            float: left;
+            margin-right: 22px;
+            a{
+                transition: all .4s ease;
+            }
+        }
+        li:nth-child(4n){
+            margin-right: 0;
+        }
+    }
+    .enrollList li:hover a{
+        transform: translateY(-8px);
+        -webkit-transform: translateY(-8px);
+        -moz-transform: translateY(-8px);
+        box-shadow: 0 5px 20px 5px #e0e0e0;
+        -webkit-box-shadow: 0 5px 20px 5px #e0e0e0;
+        -moz-box-shadow: 0 5px 20px 5px #e0e0e0;
+        transition: all .4s ease;
+    }
+    /*更多按钮*/
+    .more{
+        margin-top: 60px!important;
+        margin-bottom: 55px!important;
+        text-align: center;
+        button{
+            width: 167px;
+            height: 54px;
+            line-height: 54px;
+            text-align: center;
+            background: #f8f8f8;
+            font-size: 16px;
+            color: #1e1e1e;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+    }
+</style>

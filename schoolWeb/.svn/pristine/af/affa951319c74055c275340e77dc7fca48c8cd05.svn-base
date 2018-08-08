@@ -1,0 +1,114 @@
+<template>
+    <div id="enroll">
+        <v-top :top="top"></v-top>
+        <div class="clearfix container m-t-20 m-b-20">
+            <i class="f-fl"><img src="../assets/image/logo.png" alt=""></i>
+            <v-search :search="search" class="f-fr"></v-search>
+        </div>
+
+        <!--导航-->
+        <v-subpageMenu :subpageMenu="subpageMenu" menuName="enroll"></v-subpageMenu>
+
+        <div class="bannerimg">
+            <img src="../assets/image/enroll1.jpg" alt=""  style="width: 100%;min-width: 1200px;max-height: 300px;">
+        </div>
+        <div style="display: none">
+          <breadcrumb></breadcrumb>
+        </div>
+        <!--标题-->
+        <div class="container recruitmentTitle">
+            <div class="clearfix">
+                <i class="f-fl"></i>
+                <p class="header f-fl">热门活动</p>
+                <i class="f-fl"></i>
+            </div>
+            <p>快来报名吧，参与各种有趣的活动</p>
+        </div>
+
+        <!--活动列表-->
+        <div class="clearfix container enrollList">
+            <v-enrollItem :courseData="enrollData"  v-on:enrollRefre="enrollDetail"></v-enrollItem>
+        </div>
+
+        <div class="container more-button-1" style="margin-top: 50px;margin-bottom: 46px;" @click="enrollList">更多&nbsp;&nbsp;></div>
+
+        <v-footer :footer="footer"></v-footer>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue';
+    import top from '../components/top.vue';
+    import breadcrumb from '../components/breadcrumb.vue';
+    import search from '../components/search.vue';
+    import subpageMenu from '../components/class/subpageMenu.vue';
+    import enrollItem from '../components/course/enrollItem.vue';
+    import footer from '../components/footer.vue';
+
+    export default {
+        data() {
+            return {
+                top: {},
+                search: {},
+                subpageMenu:{},
+                classification:{},
+                footer: {},
+                page:1,
+                limit:8,
+                enrollData: '',
+                activityIsActual:null,
+                activityPlace: null,
+            };
+        },
+        mounted() {
+          this.enrollGroupS();
+        },
+        beforeDestroy() {
+
+        },
+        components: {
+            'v-top': top,
+            'v-search': search,
+            'breadcrumb':breadcrumb,
+            'v-subpageMenu': subpageMenu,
+            'v-enrollItem': enrollItem,
+            'v-footer': footer
+        },
+        methods: {
+            // 报名吧列表页
+            enrollList(){
+              this.$router.push('enrollList');
+            },
+            // 报名吧详情页
+            enrollDetail(newItem){
+                this.$router.push({ path: 'enrollDetails', query: { activityId:newItem.activityId, activityPrice:newItem.activityPrice}});
+            },
+            enrollGroupS() {
+                this.service.OfflineActivity(this.activityPlace, this.page, this.limit, this.activityIsActual).then(result => {
+                  this.enrollData = result.page.list;
+                }).catch(error => {
+                  this.$Loading.error();
+                })
+            },
+        }
+    };
+
+</script>
+
+<style lang="less">
+    .enrollList .courseState{
+      display: none;
+    }
+    .more-button-1 {
+      background-color: #ff8a0c;
+      border: 1px #ff8a0c solid;
+      color: #ffffff;
+      width: 142px !important;
+      height: 42px !important;
+      border-radius: 5px;
+      font-size: 14px;
+      text-align: center;
+      line-height: 42px;
+      cursor: pointer;
+    }
+</style>

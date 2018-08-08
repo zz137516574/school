@@ -1,0 +1,256 @@
+<!-- 课程专区 / 普通课列表 -->
+<template>
+  <div class="information clearfix">
+    <!-- title -->
+    <div class="title">
+      <span class="tit">普通课列表</span>
+    </div>
+
+    <!-- 课程List -->
+    <div class="curriculumList clearfix" v-for="(item,index) in myCollectionData " :key="index">
+      <img :src="item.photo" class="f-fl">
+      <div class="listTitle m-l-15 m-t-5 f-fl">
+        <p class="m-b-10 sharedTitle">{{item.courseName}}</p>
+        <p class="sharedPerson">
+          <span class="courseState" v-show =" item.typeStr != null " :style="{ background: item.typeStr == '视频直播'|| item.typeStr == '视频互动直播'? '#55a7d9' : '#ff8a0c' }">{{item.typeStr}}</span>
+        </p>
+        <p class="m-t-15">
+          <span class="sharedprice"  v-if="item.price != null"><span  style="color: #ff8a0c;" v-if="item.price != 0 ">￥{{item.price}}</span></span>
+          <span class="sharedprice"  v-if="item.price == 0 "  style="color: #ff8a0c;">免费</span>
+          <span class="courseTime m-l-30" v-if="item.createTime!=null">{{item.createTime}}</span>
+        </p>
+        <p class="m-t-15 m-l-5"><span v-if="item.studentCount === null">购买人数：0人</span><span v-if="item.studentCount !== null">购买人数：{{item.studentCount}}人</span></p>
+      </div>
+
+      <div class="f-fr" id="startLive">
+        <div><button class="startLive m-t-30" @click="courseDetailsLists(item)">发起直播</button></div>
+      </div>
+    </div >
+    <Page :total="pageNumber*10" class="text-center" style="padding: 20px 0;" @on-change="newsPageChange"></Page>
+  </div>
+</template>
+
+<script>
+  import commonsDiv from '../../../components/myClassroom/class/commonsDiv.vue';
+
+  export default {
+    props: {},
+    data() {
+      return {
+        msg:'',
+        personInfo:'',
+        createUser: 0,
+        page: 1,
+        limit: 6,
+        pageNumber:1,
+        onorsome:0,
+        myCollectionData:'',
+        userId: 0,
+        auditStatus: 19,
+        courseType: 0, //课程专区0 互动直播1,
+      };
+    },
+    mounted() {
+      if(window.localStorage.msg)
+      {
+        this.msg = JSON.parse(window.localStorage.msg);
+      }
+      if(window.localStorage.userInfo)
+      {
+        this.userInfo = JSON.parse(window.localStorage.userInfo);
+        this.createUser = JSON.parse(window.localStorage.userInfo).userId;
+      }
+      this.courseGeneralDatas();
+    },
+    beforeDestroy() {
+
+    },
+    components: {
+      'v-commonsDiv':commonsDiv
+    },
+    methods: {
+      //          进入详情页面
+      courseDetails(newItem){
+        this.$router.push({ path: 'freeCourse', query: { onorsome:this.onorsome, courseId:newItem.courseId, price:newItem.price}});
+      },
+      newsPageChange(pageNum){
+        this.page = pageNum;
+        this.courseGeneralDatas();
+      },
+      courseGeneralDatas(){
+        this.service.courseGeneralData(this.page, this.limit, this.createUser, this.auditStatus, this.onorsome,this.courseType).then(result => {
+          console.log(result);
+          this.myCollectionData = result.page.list;
+          this.pageNumber = result.page.totalPage;
+        }).catch(error => {
+          this.$Message.error({
+            content: error,
+            duration: 5
+          });
+        })
+      },
+
+//      获取课程详情
+      courseDetailsLists(item){
+        this.courseId = item.courseId;
+        this.service.courseInfo(this.courseId,this.onorsome,this.userId).then(result => {
+          this.vhallID = result.course.teacher.vhallUserId;
+          this.vhallAccount = result.course.teacher.vhallUserAccount;
+          this.roomNo = result.course.roomNo;
+          this.password = result.course.teacher.vhallUserPassword;
+
+          console.log(this.courseId +'===='+this.onorsome+'===='+this.roomNo+'===='+this.vhallID+'====='+this.vhallAccount+'====='+this.userId);
+          let myurl="http://room.goboosoft.com/liveBroad.html"+"?"+"courseId="+this.courseId+"&onorsome="+this.onorsome + "&roomNo=" + this.roomNo + "&vhallID=" + this.vhallID + "&vhallAccount=" + this.vhallAccount+'&userId='+this.userId+'&password='+this.password;
+          window.location.assign(encodeURI(myurl));
+        }).catch(error => {
+          this.$Loading.error();
+        })
+      },
+    }
+  };
+</script>
+
+<style lang="less">
+  .information {
+    width: 945px;
+    height: auto;
+    border: 1px #ededed solid;
+    padding-bottom: 40px;
+    .title {
+      width:auto;
+      height: 50px;
+      line-height: 50px;
+      font-size: 16px;
+      color: #3e3e3e;
+      border-bottom: 1px #ededed solid;
+      .tit {
+        padding: 15px;
+        border-bottom: 2px #ff8a0c solid;
+      }
+    }
+    .curriculumList {
+      width: auto;
+      min-height: 100px;
+      padding: 20px;
+      border-radius: 0;
+      border-bottom: 1px solid #efefef;
+      img {
+        width: 140px;
+        height: 100px;
+        display: block;
+        float: left;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-image: url('../../../assets/image/imgbg.jpg');
+        /*background-color: #ededed;*/
+      }
+      .listTitle {
+        .sharedTitle{
+          font-size: 18px;
+          color: #333333;
+        }
+        .sharedPerson{
+          font-size: 14px;
+          color: #666666;
+          .courseState{
+            font-size: 12px;
+            border-radius: 3px;
+            padding: 5px 8px;
+            color: #ffffff;
+            background: #55a7d9;
+          }
+          .courseTime{
+            font-size: 14px;
+            color: #999999;
+          }
+        }
+        .sharedprice{
+          font-size: 16px;
+          color: #ff8a0c;
+        }
+      }
+      .ivu-alert-close .ivu-icon-ios-close-empty {
+        font-size: 35px;
+        top: 0;
+      }
+    }
+    .curriculum-alert{
+      padding: 20px 18px;
+      li.coursesLi{
+        margin: 0 30px 30px 0;
+        float: left;
+        width: 282px;
+        height: 249px;
+        border: 1px #ededed solid;
+        background-color: #ffffff;
+        cursor: pointer;
+        -webkit-transition: all .4s ease;
+        transition: all .4s ease;
+        .courseTop{
+          width: 100%;
+          height: 172px;
+          overflow: hidden;
+          cursor: pointer;
+          img{
+            width: 100%;
+            height: 100%;
+          }
+        }
+        .courseBottom{
+          width: 100%;
+          height: 75px;
+          padding: 10px 10px;
+          box-sizing: border-box;
+          .top{
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #2a2a2a;
+            background: #ffffff;
+            .courseState{
+              margin-left: 10px;
+              font-size: 12px;
+              border-radius: 3px;
+              padding: 5px 8px;
+              color: #ffffff;
+              background: #55a7d9;
+            }
+          }
+          .courseTime{
+            font-size: 14px;
+            color: #999999;
+          }
+          .courseRevise{
+            width: 18px;
+            img{
+              width: 100%;
+            }
+          }
+          .price{
+            margin-top: -3px;
+            font-size: 18px;
+            color: #ff8a0c;
+          }
+        }
+      }
+    }
+
+
+    li.coursesLi:nth-child(3n){
+      margin-right: 0;
+    }
+  }
+
+  #startLive{
+    button{
+      width: 120px;
+      height: 38px;
+      border-radius: 5px;
+      background: #ff8a0c;
+      color: #ffffff;
+      font-size: 14px;
+      border: none;
+      outline: none;
+      cursor:pointer;
+    }
+  }
+</style>

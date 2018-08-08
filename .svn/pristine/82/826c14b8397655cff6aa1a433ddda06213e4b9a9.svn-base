@@ -1,0 +1,103 @@
+<!-- 课程专区 / 我的收藏 -->
+<template>
+  <div class="information clearfix">
+    <!-- title -->
+    <div class="title">
+      <span class="tit">我的收藏</span>
+    </div>
+
+    <!-- 课程List -->
+    <div class="curriculum-alert clearfix">
+      <v-commonsDiv :courseData="myCollectionData"  v-on:courseDetailsRefre="courseDetails"></v-commonsDiv>
+    </div>
+    <Page :total="pageNum*10" class="text-center" style="padding: 20px 0;" @on-change="newsPageChange"></Page>
+  </div>
+</template>
+
+<script>
+  import commonsDiv from '../../../components/myClassroom/class/commonsDivv.vue';
+  export default {
+    data() {
+      return {
+        userId: 0,
+        page: 1,
+        limit: 6,
+        myCollectionData:'',
+        pageNum: 1,
+        msg:'',
+        userInfo:'',
+        recordtypeStr: 1
+      };
+    },
+    mounted() {
+//      this.myCollectDatas();
+      if(window.localStorage.msg)
+      {
+        this.msg = JSON.parse(window.localStorage.msg);
+      }
+      if(window.localStorage.userInfo)
+      {
+        this.userInfo = JSON.parse(window.localStorage.userInfo);
+        this.userId = JSON.parse(window.localStorage.userInfo).userId;
+      }
+      this.myCollectDatas();
+    },
+    beforeDestroy() {
+
+    },
+    components: {
+      'v-commonsDiv':commonsDiv
+    },
+    methods: {
+      newsPageChange(pageNum){
+        this.page = pageNum;
+        this.myCollectDatas();
+      },
+      myCollectDatas(){
+        this.service.collegeCourse(this.page, this.limit, this.userId, this.recordtypeStr).then(result => {
+          this.myCollectionData = result.page.list;
+          this.pageNum = result.page.totalPage;
+        }).catch(error => {
+          this.$Message.error({
+            content: error,
+            duration: 5
+          });
+        })
+      },
+      //          进入详情页面
+      courseDetails(newItem){
+        if(newItem.recordType == 2){
+          this.$router.push({ path: 'freeSeriesCourse', query: { newsID: newItem }});
+        }
+        this.$router.push({ path: 'freeCourse', query: { newsID: newItem }});
+      },
+    }
+  };
+</script>
+
+<style lang="less">
+  .information {
+    width: 945px;
+    height: auto;
+    border: 1px #ededed solid;
+    padding-bottom: 40px;
+    .title {
+      width:auto;
+      height: 50px;
+      line-height: 50px;
+      font-size: 16px;
+      color: #3e3e3e;
+      border-bottom: 1px #ededed solid;
+      .tit {
+        padding: 15px;
+        border-bottom: 2px #ff8a0c solid;
+      }
+    }
+    .curriculum-alert{
+      padding: 20px 18px;
+    }
+    li.coursesLi:nth-child(3n){
+      margin-right: 0;
+    }
+  }
+</style>

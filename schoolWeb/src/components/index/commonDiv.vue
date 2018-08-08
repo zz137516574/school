@@ -1,0 +1,178 @@
+<!-- 公用层 -->
+<template>
+  <div class="clearfix">
+    <div class="common-div f-fl"  v-for="(item,index) in listData" :key="index" @click="newdata(item)">
+      <div class="common-top">
+        <img :src="item.photo" alt="" v-if="item.hasOwnProperty('photo')">
+      </div>
+      <div class="common-bottom clearfix">
+        <p>
+          <span class="common-title"  v-if="item.hasOwnProperty('courseName')">{{item.courseName}}</span>
+          <span class="common-time"  v-if="item.hasOwnProperty('createTime')">{{item.createTime}}</span>
+        </p>
+        <div class="f-fr">
+          <!--<button class="lijibaoming" @click="confirmSignUp">立即报名</button>-->
+          <!--<label class="dollor" v-if="item.hasOwnProperty('price')">{{item.price}}</label>-->
+
+          <label class="dollor"  v-if="item.price != 0 "><span  style="color: #ff8a0c;">￥{{item.price | currency}}</span></label>
+          <label class="dollor"  v-if="item.price == 0 "  style="color: #ff8a0c;">免费</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    export default {
+      props: {
+        listData: {
+          required: true
+        }
+      },
+        data() {
+            return {
+
+            };
+        },
+//        mounted() {
+//          console.log(this.listData);
+//        },
+        beforeDestroy() {
+
+        },
+        filters:{      //数据过滤器
+        currency:function(x){
+          try {
+            let f_x1 = parseFloat(x);
+            if (isNaN(f_x1)) {
+              return x;
+            }
+            let f_x = Math.round(x * 100) / 100;
+            let s_x = f_x.toString();
+            let pos_decimal = s_x.indexOf('.');
+            if (pos_decimal < 0) {
+              pos_decimal = s_x.length;
+              s_x += '.';
+            }
+            while (s_x.length <= pos_decimal + 2) {
+              s_x += '0';
+            }
+            return s_x;
+          } catch (e) {
+            return '0.00';
+          }
+        }
+
+      },
+        methods: {
+          newdata(item) {
+            this.$emit('excellentRefre', item);
+          }
+        }
+    };
+
+</script>
+
+<style lang="less">
+    .common-div {
+        width: 283px !important;
+        height: 249px !important;
+        border: 1px #ededed solid;
+        background-color: #ffffff;
+        margin-top: 30px;
+        margin-right: 22px;
+        .common-top{
+            width: 100% !important;
+            height: 172px !important;
+            background-size: 100% 100%;
+            cursor: pointer;
+            background-repeat: no-repeat;
+            background-image: url('../../assets/image/imgbg.jpg');
+            background-size: 100% 100%;
+            display: block;
+          img{
+            width: 100%;
+            height: 100%;
+          }
+        }
+        .common-bottom{
+            width: 100% !important;
+            height: 75px !important;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+            p{
+                width: 180px;
+                float: left;
+                margin:10px 0;
+                overflow: hidden;
+                .common-title{
+                    display: block;
+                    width: 100%;
+                    height: 20px;
+                    font-size: 14px;
+                    color: #2a2a2a;
+                    cursor: pointer;
+                    overflow: hidden;
+                }
+                .common-title:hover{
+                    color: #000000;
+                }
+                .common-time{
+                    display: block;
+                    width: 100%;
+                    font-size: 12px;
+                    color: #959595;
+                    margin-top: 9px;
+                }
+                .common-desc{
+                    display: none;
+                    font-size: 12px;
+                    color: #706f6f;
+                    margin-top: 8px;
+                    float: left;
+                }
+
+            }
+            .lijibaoming{
+              display: block !important;
+              float:left;
+              width:44px !important;
+              height:44px !important;
+              background-color: #ff8a0c;
+              color: #ffffff;
+              font-size: 14px;
+              border-radius: 6px;
+              border:0;
+              padding: 5px;
+              margin-left: 40px;
+              margin-top: 5px;
+              line-height: 16px;
+              cursor: pointer;
+            }
+            lijibaoming:hover{
+              background-color: #e86300;
+            }
+            .dollor{
+              display: block !important;
+              color: #ff8a0c;
+              font-size: 18px;
+              float:left;
+              margin-top: 30px;
+            }
+
+        }
+    }
+    .common-div:nth-child(4n){
+      margin-right: 0;
+    }
+    .common-div:hover {
+        transform: translateY(-8px);
+        -webkit-transform: translateY(-8px);
+        -moz-transform: translateY(-8px);
+        box-shadow: 0 5px 20px 5px #e0e0e0;
+        -webkit-box-shadow: 0 5px 20px 5px #e0e0e0;
+        -moz-box-shadow: 0 5px 20px 5px #e0e0e0;
+        transition: all .4s ease;
+    }
+</style>

@@ -1,0 +1,175 @@
+<template>
+    <div class="container subpageMenu clearfix">
+      <Menu ref="menu" id="menu" mode="horizontal" :active-name="this.menuName" @on-select="menuGroupClick">
+        <MenuItem  v-for="(item,index) in items"
+                   :name="item.location"
+                   :key="index">
+          <a v-if="item.children.length === 0">{{item.text}}</a>
+          <Submenu  v-if="item.children.length > 0" :key="index" :name="item.location">
+            <template slot="title" >
+              <a>{{item.text}}</a>
+            </template>
+            <Menu-group>
+              <MenuItem v-for="(i, position) in item.children"
+                         :name="i.location"
+                         :key="position"><a @click="menuItemClick(i)">{{i.text}}</a></MenuItem>
+            </Menu-group>
+          </Submenu>
+        </MenuItem>
+      </Menu>
+        <!--:active-name="this.activeName"-->
+        <!--<Menu ref="menu" id="menu" mode="horizontal" :active-name="this.menuName" @on-select="menuGroupClick">-->
+            <!--<MenuItem v-for="(item,index) in items"-->
+                <!--:name="item.location"-->
+                <!--:key="index"-->
+                <!--&gt;-->
+                <!--<a v-if="item.children.length === 0">{{item.text}}</a>-->
+                <!--<Dropdown v-else>-->
+                    <!--<a >{{item.text}}</a>-->
+                    <!--<DropdownMenu slot="list">-->
+                        <!--<DropdownItem-->
+                            <!--v-for="(i, position) in item.children"-->
+                            <!--:name="i.location"-->
+                            <!--:key="position"-->
+                            <!--&gt;-->
+                            <!--<a @click="menuItemClick(i)">{{i.text}}</a>-->
+                        <!--</DropdownItem>-->
+                    <!--</DropdownMenu>-->
+                <!--</Dropdown>-->
+            <!--</MenuItem>-->
+
+        <!--</Menu>-->
+    </div>
+</template>
+
+<script>
+    export default {
+        props: {
+            subpageMenu: {},
+            menuName:''
+        },
+        data() {
+            return {
+                items:[
+                    { text: '首页' , location: 'index', children:[]},
+                    { text: '课程专区' , location: 'course', children:[]},
+                    { text: '直播专区' , location: 'liveBroadcast', children:[
+//                        {
+//                            text: '路演直播' , location: 'roadShow'
+//                        },
+//                        {
+//                            text: '访谈专栏' , location: 'intervieIndex'
+//                        }
+                    ]},
+                    { text: '资讯中心' , location: 'news', children:[]},
+                    { text: '云联学院' , location: 'yunCollege', children:[
+                        {
+                            text: '讲师集结' , location: 'assemblyLecturers'
+                        }
+                    ]},
+                    { text: '云联优品' , location: 'product', children:[]},
+//                    { text: '社区中心' , location: '', children:[]},
+                    { text: '讲师招募' , location: 'lecturerRecruitment', children:[]},
+                    { text: '黄董专区' , location: 'column', children:[]},
+                    { text: '报名吧' , location: 'enroll', children:[]},
+                    { text: '关于我们' , location: 'about', children:[]},
+
+                ],
+                activeName : this.store.state.topMenu
+            };
+        },
+        mounted() {
+
+        },
+        beforeCreate(){
+//            alert('anme is ' + this.menuName);
+//            this.store.state.topMenu = this.menuName;
+//            this.activeName = this.menuName;
+//            alert(this.$route.path);
+        },
+//        watch: {
+//            $route(to, from) {
+//                console.log('============== to route ' + to);
+//                console.log('============== from route ' +from);
+//            },
+//        },
+        beforeDestroy() {
+
+//            console.log('this.$route.path' + this.$route.path + ' this.$route.name is ' + this.$route.matched)
+//            activeName : this.store.state.topMenu
+//            activeName : this.store.state.topMenu
+//            console.log('activeName is ' + this.activeName);
+        },
+        methods: {
+            menuGroupClick(name){
+                this.$router.push(name);
+//                this.store.state.topMenu = name;
+            },
+            menuItemClick(itemData){
+
+                if (itemData.location !== '') {
+                    this.$router.push(itemData.location);
+//                    this.store.state.topMenu =  this.$route.path
+//                    this.store.state.topMenu = itemData.location;
+//                    console.log('to activeName is ' + this.activeName);
+//                    this.activeName =  itemData.location;
+//                    console.log('to activeName is ' + itemData.location + ' state is ' +  this.store.state.topMenu);
+                    //1、保存to location
+                }
+
+            }
+        }
+    };
+</script>
+
+<style  lang="less">
+    .subpageMenu{
+      .ivu-menu-horizontal .ivu-menu-item{
+        width: 120px;
+        text-align: center;
+      }
+        .ivu-menu{
+            height: 40px;
+            line-height: 40px;
+            a{
+                color: #4e4e4e;
+            }
+
+            .ivu-menu-item-active,.ivu-menu-item:hover,.ivu-menu-submenu-active,.ivu-menu-submenu:hover{
+                background: #ff8a0c;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                border-bottom: 2px solid #ff8a0c!important;
+                a{
+                    color: #ffffff;
+                }
+            }
+            .ivu-menu-submenu{
+              padding: 0 10px;
+              .ivu-icon{
+                display: none;
+              }
+            }
+            .ivu-select-dropdown{
+                a{
+                    color: #4e4e4e!important;
+                }
+                .ivu-dropdown-item{
+                    text-align: center;
+                }
+            }
+
+        }
+        .ivu-menu-horizontal.ivu-menu-light:after{
+            background: #ff8a0c;
+            height: 2px;
+        }
+        .ivu-menu-item-group-title{
+          display: none;
+        }
+        .ivu-select-dropdown{
+          padding: 5px 4px;
+          left: -20px;
+        }
+    }
+</style>
